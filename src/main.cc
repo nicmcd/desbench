@@ -62,7 +62,7 @@ void test(u32 _numThreads, u64 _numModels, u64 _eventsPerModel,
   }
 
   sim->debugCheck();
-  sim->simulate();
+  sim->simulate(true);
 
   for (u32 id = 0; id < _numModels; id++) {
     delete models.at(id);
