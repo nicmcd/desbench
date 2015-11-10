@@ -28,7 +28,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/Model.h"
+#include "example/SimpleModel.h"
 
 #include <cassert>
 #include <cstdio>
@@ -36,22 +36,29 @@
 
 namespace example {
 
-Model::Model(des::Simulator* _simulator, const std::string& _name,
-             const Model* _parent, u64 _count, u64 _id, bool _verbose,
-             bool _shiftyEpsilon)
-    : des::Model(_simulator, _name, _parent), count_(_count),
-      id_(_id), verbose_(_verbose), shiftyEpsilon_(_shiftyEpsilon),
-      evt_(this, static_cast<des::EventHandler>(&Model::handler)) {}
+SimpleModel::SimpleModel(des::Simulator* _simulator, const std::string& _name,
+                         const des::Model* _parent, u64 _id, u64 _count,
+                         bool _shiftyEpsilon, bool _verbose)
+    : des::Model(_simulator, _name, _parent), id_(_id), count_(_count),
+      shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose),
+      evt_(this, static_cast<des::EventHandler>(&SimpleModel::handler)) {
+  if (count_ > 0) {
+    s32 na = evt_.a + 1;
+    s32 nb = evt_.b + 1;
+    s32 nc = evt_.c + 1;
+    function(na, nb, nc);  // queue first event
+  }
+}
 
-Model::~Model() {
+SimpleModel::~SimpleModel() {
   assert(count_ == 0);
 }
 
-Model::Event::Event(des::Model* _model,
-                    des::EventHandler _handler)
+SimpleModel::Event::Event(des::Model* _model,
+                          des::EventHandler _handler)
     : des::Event(_model, _handler), a(0), b(0), c(0) {}
 
-void Model::function(s32 _a, s32 _b, s32 _c) {
+void SimpleModel::function(s32 _a, s32 _b, s32 _c) {
   evt_.time = simulator->time();
   evt_.time.tick++;
   if (shiftyEpsilon_) {
@@ -65,7 +72,7 @@ void Model::function(s32 _a, s32 _b, s32 _c) {
   simulator->addEvent(&evt_);
 }
 
-void Model::handler(des::Event* _event) {
+void SimpleModel::handler(des::Event* _event) {
   Event* me = reinterpret_cast<Event*>(_event);
 
   count_--;
@@ -77,7 +84,7 @@ void Model::handler(des::Event* _event) {
     s32 na = me->a + 1;
     s32 nb = me->b + 1;
     s32 nc = me->c + 1;
-    function(na, nb, nc);  // queue another
+    function(na, nb, nc);  // queue another event
   }
 }
 

@@ -40,10 +40,22 @@
 #include <tuple>
 #include <vector>
 
-#include "example/Model.h"
+#include "example/SimpleModel.h"
 
-void test(u32 _numThreads, u64 _numModels, u64 _eventsPerModel,
-          bool _shiftyEpsilon, bool _verbose) {
+des::Model* createModel(const std::string& _type, des::Simulator* _sim,
+                        const std::string& _name, u64 _id, u64 _events,
+                        bool _shiftyEpsilon, bool _verbose) {
+  if (_type == "simple") {
+    return new example::SimpleModel(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon, _verbose);
+  } else {
+    fprintf(stderr, "invalid model type: %s\n", _type.c_str());
+    exit(-1);
+  }
+}
+
+void test(u32 _numThreads, u64 _numModels, const std::string& _modelType,
+          u64 _eventsPerModel, bool _shiftyEpsilon, bool _verbose) {
   des::Simulator* sim = new des::Simulator(_numThreads);
   if (_verbose) {
     for (u32 id = 0; id < _numModels; id++) {
@@ -51,14 +63,11 @@ void test(u32 _numThreads, u64 _numModels, u64 _eventsPerModel,
     }
   }
 
-  std::vector<example::Model*> models(_numModels);
+  std::vector<des::Model*> models(_numModels);
   for (u32 id = 0; id < _numModels; id++) {
-    models.at(id) = new example::Model(sim, "Model_" + std::to_string(id),
-                                       nullptr, _eventsPerModel, id, _verbose,
-                                       _shiftyEpsilon);
-  }
-  for (u32 id = 0; id < _numModels; id++) {
-    models.at(id)->function(1000000, 2000000, 3000000);
+    std::string name = "Model_" + std::to_string(id);
+    models.at(id) = createModel(_modelType, sim, name, id, _eventsPerModel,
+                                _shiftyEpsilon, _verbose);
   }
 
   sim->debugCheck();
@@ -73,6 +82,7 @@ void test(u32 _numThreads, u64 _numModels, u64 _eventsPerModel,
 s32 main(s32 _argc, char** _argv) {
   u32 threads = U32_MAX;
   u64 models = U64_MAX;
+  std::string modelType = "";
   u64 eventsPerModel = U64_MAX;
   bool shiftyEpsilon = false;
   bool verbose = false;
@@ -83,6 +93,8 @@ s32 main(s32 _argc, char** _argv) {
                                     0, "u32", cmd);
     TCLAP::ValueArg<u32> modelsArg("m", "models", "Number of models", false,
                                    1, "u32", cmd);
+    TCLAP::ValueArg<std::string> nameArg("n", "name", "Model type name", false,
+                                         "simple", "string", cmd);
     TCLAP::ValueArg<u32> eventsArg("e", "events", "Number of events per model",
                                    false, 1, "u32", cmd);
     TCLAP::SwitchArg shiftyArg("s", "shifty", "Shufty Epsilon", cmd,
@@ -92,16 +104,20 @@ s32 main(s32 _argc, char** _argv) {
     cmd.parse(_argc, _argv);
     threads = threadsArg.getValue();
     models = modelsArg.getValue();
+    modelType = nameArg.getValue();
     eventsPerModel = eventsArg.getValue();
     shiftyEpsilon = shiftyArg.getValue();
     verbose = verboseArg.getValue();
   } catch (TCLAP::ArgException &e) {
     fprintf(stderr, "error: %s for arg %s\n",
             e.error().c_str(), e.argId().c_str());
+    exit(-1);
   }
 
-  printf("threads=%u models=%lu eventsPerModel=%lu shifty=%d verbose=%d\n",
-         threads, models, eventsPerModel, shiftyEpsilon, verbose);
-  test(threads, models, eventsPerModel, shiftyEpsilon, verbose);
+  printf("threads=%u models=%lu type=%s eventsPerModel=%lu shifty=%d "
+         "verbose=%d\n",
+         threads, models, modelType.c_str(), eventsPerModel, shiftyEpsilon,
+         verbose);
+  test(threads, models, modelType, eventsPerModel, shiftyEpsilon, verbose);
   return 0;
 }

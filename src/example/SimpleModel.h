@@ -28,8 +28,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_MODEL_H_
-#define EXAMPLE_MODEL_H_
+#ifndef EXAMPLE_SIMPLEMODEL_H_
+#define EXAMPLE_SIMPLEMODEL_H_
 
 #include <des/Event.h>
 #include <des/Model.h>
@@ -40,12 +40,12 @@
 
 namespace example {
 
-class Model : public des::Model {
+class SimpleModel : public des::Model {
  public:
-  Model(des::Simulator* _simulator, const std::string& _name,
-        const Model* _parent, u64 _count, u64 _id, bool _verbose,
-        bool _shiftyEpsilon);
-  ~Model();
+  SimpleModel(des::Simulator* _simulator, const std::string& _name,
+              const des::Model* _parent, u64 _id, u64 _count,
+              bool _shiftyEpsilon, bool _verbose);
+  ~SimpleModel();
   void function(s32 _a, s32 _b, s32 _c);
 
  private:
@@ -59,13 +59,13 @@ class Model : public des::Model {
 
   void handler(des::Event* _event);
 
-  u64 count_;
   u64 id_;
-  bool verbose_;
+  u64 count_;
   bool shiftyEpsilon_;
+  bool verbose_;
   Event evt_;
 };
 
 }  // namespace example
 
-#endif  // EXAMPLE_MODEL_H_
+#endif  // EXAMPLE_SIMPLEMODEL_H_
