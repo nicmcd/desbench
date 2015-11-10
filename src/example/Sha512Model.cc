@@ -28,7 +28,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/EmptyModel.h"
+#include "example/Sha512Model.h"
+
+#include <openssl/sha.h>
 
 #include <cassert>
 #include <cstdio>
@@ -36,26 +38,26 @@
 
 namespace example {
 
-EmptyModel::EmptyModel(des::Simulator* _simulator, const std::string& _name,
-                       const des::Model* _parent, u64 _id, u64 _count,
-                       bool _shiftyEpsilon, bool _verbose)
+Sha512Model::Sha512Model(des::Simulator* _simulator, const std::string& _name,
+                         const des::Model* _parent, u64 _id, u64 _count,
+                         bool _shiftyEpsilon, bool _verbose)
     : des::Model(_simulator, _name, _parent), id_(_id), count_(_count),
       shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose),
-      evt_(this, static_cast<des::EventHandler>(&EmptyModel::handler)) {
+      evt_(this, static_cast<des::EventHandler>(&Sha512Model::handler)) {
   if (count_ > 0) {
     function();  // queue first event
   }
 }
 
-EmptyModel::~EmptyModel() {
+Sha512Model::~Sha512Model() {
   assert(count_ == 0);
 }
 
-EmptyModel::Event::Event(des::Model* _model,
-                         des::EventHandler _handler)
+Sha512Model::Event::Event(des::Model* _model,
+                          des::EventHandler _handler)
     : des::Event(_model, _handler) {}
 
-void EmptyModel::function() {
+void Sha512Model::function() {
   evt_.time = simulator->time();
   evt_.time.tick++;
   if (shiftyEpsilon_) {
@@ -66,7 +68,7 @@ void EmptyModel::function() {
   simulator->addEvent(&evt_);
 }
 
-void EmptyModel::handler(des::Event* _event) {
+void Sha512Model::handler(des::Event* _event) {
   Event* me = reinterpret_cast<Event*>(_event);
   (void)me;
 
@@ -76,6 +78,9 @@ void EmptyModel::handler(des::Event* _event) {
   }
 
   if (count_ > 0) {
+    unsigned char hash[SHA512_DIGEST_LENGTH];
+    SHA512(reinterpret_cast<const u8*>(baseName().c_str()),
+           baseName().size(), hash);
     function();  // queue another event
   }
 }

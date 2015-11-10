@@ -41,6 +41,8 @@
 #include <vector>
 
 #include "example/EmptyModel.h"
+#include "example/Sha1Model.h"
+#include "example/Sha512Model.h"
 #include "example/SimpleModel.h"
 
 des::Model* createModel(const std::string& _type, des::Simulator* _sim,
@@ -48,6 +50,12 @@ des::Model* createModel(const std::string& _type, des::Simulator* _sim,
                         bool _shiftyEpsilon, bool _verbose) {
   if (_type == "empty") {
     return new example::EmptyModel(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon, _verbose);
+  } else if (_type == "sha1") {
+    return new example::Sha1Model(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon, _verbose);
+  } else if (_type == "sha512") {
+    return new example::Sha512Model(
         _sim, _name, nullptr, _id, _events, _shiftyEpsilon, _verbose);
   } else if (_type == "simple") {
     return new example::SimpleModel(

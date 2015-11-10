@@ -28,56 +28,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/EmptyModel.h"
+#ifndef EXAMPLE_SHA512MODEL_H_
+#define EXAMPLE_SHA512MODEL_H_
 
-#include <cassert>
-#include <cstdio>
-#include <cstring>
+#include <des/Event.h>
+#include <des/Model.h>
+#include <des/Simulator.h>
+#include <prim/prim.h>
+
+#include <string>
 
 namespace example {
 
-EmptyModel::EmptyModel(des::Simulator* _simulator, const std::string& _name,
-                       const des::Model* _parent, u64 _id, u64 _count,
-                       bool _shiftyEpsilon, bool _verbose)
-    : des::Model(_simulator, _name, _parent), id_(_id), count_(_count),
-      shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose),
-      evt_(this, static_cast<des::EventHandler>(&EmptyModel::handler)) {
-  if (count_ > 0) {
-    function();  // queue first event
-  }
-}
+class Sha512Model : public des::Model {
+ public:
+  Sha512Model(des::Simulator* _simulator, const std::string& _name,
+              const des::Model* _parent, u64 _id, u64 _count,
+              bool _shiftyEpsilon, bool _verbose);
+  ~Sha512Model();
+  void function();
 
-EmptyModel::~EmptyModel() {
-  assert(count_ == 0);
-}
+ private:
+  class Event : public des::Event {
+   public:
+    Event(des::Model* _model, des::EventHandler _handler);
+  };
 
-EmptyModel::Event::Event(des::Model* _model,
-                         des::EventHandler _handler)
-    : des::Event(_model, _handler) {}
+  void handler(des::Event* _event);
 
-void EmptyModel::function() {
-  evt_.time = simulator->time();
-  evt_.time.tick++;
-  if (shiftyEpsilon_) {
-    evt_.time.epsilon = (id_ + count_) % 254;
-  } else {
-    evt_.time.epsilon = 0;
-  }
-  simulator->addEvent(&evt_);
-}
-
-void EmptyModel::handler(des::Event* _event) {
-  Event* me = reinterpret_cast<Event*>(_event);
-  (void)me;
-
-  count_--;
-  if (verbose_ || count_ < 5) {
-    dlogf("hello world, from model #%lu, count %lu", id_, count_);
-  }
-
-  if (count_ > 0) {
-    function();  // queue another event
-  }
-}
+  u64 id_;
+  u64 count_;
+  bool shiftyEpsilon_;
+  bool verbose_;
+  Event evt_;
+};
 
 }  // namespace example
+
+#endif  // EXAMPLE_SHA512MODEL_H_
