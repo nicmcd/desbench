@@ -40,12 +40,16 @@
 #include <tuple>
 #include <vector>
 
+#include "example/EmptyModel.h"
 #include "example/SimpleModel.h"
 
 des::Model* createModel(const std::string& _type, des::Simulator* _sim,
                         const std::string& _name, u64 _id, u64 _events,
                         bool _shiftyEpsilon, bool _verbose) {
-  if (_type == "simple") {
+  if (_type == "empty") {
+    return new example::EmptyModel(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon, _verbose);
+  } else if (_type == "simple") {
     return new example::SimpleModel(
         _sim, _name, nullptr, _id, _events, _shiftyEpsilon, _verbose);
   } else {
