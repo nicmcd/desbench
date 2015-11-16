@@ -109,7 +109,7 @@ s32 main(s32 _argc, char** _argv) {
                                          "simple", "string", cmd);
     TCLAP::ValueArg<u32> eventsArg("e", "events", "Number of events per model",
                                    false, 1, "u32", cmd);
-    TCLAP::SwitchArg shiftyArg("s", "shifty", "Shufty Epsilon", cmd,
+    TCLAP::SwitchArg shiftyArg("s", "shifty", "Shifty Epsilon", cmd,
                                false);
     TCLAP::SwitchArg verboseArg("v", "verbose", "Turn on verbosity", cmd,
                                 false);
