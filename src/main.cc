@@ -28,9 +28,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <des/Event.h>
-#include <des/Model.h>
-#include <des/Simulator.h>
+#include <des/des.h>
 #include <prim/prim.h>
 #include <tclap/CmdLine.h>
 
@@ -81,6 +79,9 @@ void test(u32 _numThreads, u64 _numModels, const std::string& _modelType,
     models.at(id) = createModel(_modelType, sim, name, id, _eventsPerModel,
                                 _shiftyEpsilon, _verbose);
   }
+
+  des::Logger logger;
+  sim->setLogger(&logger);
 
   sim->debugCheck();
   sim->simulate(true);
