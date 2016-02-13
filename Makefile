@@ -32,4 +32,4 @@ CXX_FLAGS     += -pthread
 LINK_FLAGS    := -lz -lpthread -lcrypto -lssl -Wl,--no-as-needed
 
 #--------------------- Auto Makefile ------------------------------------------#
-include ~/.makeccpp/auto_bin.mk
+include $(HOME)/.makeccpp/auto_bin.mk
