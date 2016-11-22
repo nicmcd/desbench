@@ -39,16 +39,41 @@
 #include <vector>
 
 #include "example/EmptyModel.h"
+#include "example/MemoryModel.h"
 #include "example/Sha1Model.h"
 #include "example/Sha512Model.h"
 #include "example/SimpleModel.h"
 
 des::Model* createModel(const std::string& _type, des::Simulator* _sim,
                         const std::string& _name, u64 _id, u64 _events,
-                        bool _shiftyEpsilon, bool _verbose) {
+                        bool _shiftyEpsilon, bool _verbose, u32 _numModels) {
   if (_type == "empty") {
     return new example::EmptyModel(
         _sim, _name, nullptr, _id, _events, _shiftyEpsilon, _verbose);
+  } else if (_type == "mem1m") {
+    return new example::MemoryModel(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon,
+        1000000 / _numModels, _verbose);
+  } else if (_type == "mem10m") {
+    return new example::MemoryModel(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon,
+        10000000 / _numModels, _verbose);
+  } else if (_type == "mem100m") {
+    return new example::MemoryModel(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon,
+        100000000 / _numModels, _verbose);
+  } else if (_type == "mem1g") {
+    return new example::MemoryModel(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon,
+        1000000000 / _numModels, _verbose);
+  } else if (_type == "mem10g") {
+    return new example::MemoryModel(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon,
+        10000000000 / _numModels, _verbose);
+  } else if (_type == "mem100g") {
+    return new example::MemoryModel(
+        _sim, _name, nullptr, _id, _events, _shiftyEpsilon,
+        100000000000 / _numModels, _verbose);
   } else if (_type == "sha1") {
     return new example::Sha1Model(
         _sim, _name, nullptr, _id, _events, _shiftyEpsilon, _verbose);
@@ -77,13 +102,14 @@ void test(u32 _numThreads, u64 _numModels, const std::string& _modelType,
   for (u32 id = 0; id < _numModels; id++) {
     std::string name = "Model_" + std::to_string(id);
     models.at(id) = createModel(_modelType, sim, name, id, _eventsPerModel,
-                                _shiftyEpsilon, _verbose);
+                                _shiftyEpsilon, _verbose, _numModels);
   }
 
   des::Logger logger;
   sim->setLogger(&logger);
 
   sim->debugCheck();
+  printf("simulation beginning...\n");
   sim->simulate(true);
 
   for (u32 id = 0; id < _numModels; id++) {
