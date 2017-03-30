@@ -37,31 +37,25 @@
 namespace example {
 
 EmptyModel::EmptyModel(des::Simulator* _simulator, const std::string& _name,
-                       const des::Model* _parent, u64 _id, u64 _count,
-                       bool _shiftyEpsilon, bool _verbose)
-    : des::Model(_simulator, _name, _parent), id_(_id), count_(_count),
-      shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose),
+                       const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
+                       bool _verbose)
+    : BenchModel(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
       evt_(this, static_cast<des::EventHandler>(&EmptyModel::handler)) {
-  if (count_ > 0) {
-    function();  // queue first event
-  }
+  function();  // queue first event
 }
 
-EmptyModel::~EmptyModel() {
-  assert(count_ == 0);
-}
+EmptyModel::~EmptyModel() {}
 
 EmptyModel::Event::Event(des::Model* _model,
                          des::EventHandler _handler)
     : des::Event(_model, _handler) {}
 
 void EmptyModel::function() {
-  evt_.time = simulator->time();
-  evt_.time.tick++;
+  evt_.time = simulator->time() + 1;
   if (shiftyEpsilon_) {
-    evt_.time.epsilon = (id_ + count_) % 254;
+    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
   } else {
-    evt_.time.epsilon = 0;
+    evt_.time.setEpsilon(0);
   }
   simulator->addEvent(&evt_);
 }
@@ -70,12 +64,12 @@ void EmptyModel::handler(des::Event* _event) {
   Event* me = reinterpret_cast<Event*>(_event);
   (void)me;
 
-  count_--;
+  count_++;
   if (verbose_ || count_ < 5) {
     dlogf("hello world, from model #%lu, count %lu", id_, count_);
   }
 
-  if (count_ > 0) {
+  if (run_) {
     function();  // queue another event
   }
 }

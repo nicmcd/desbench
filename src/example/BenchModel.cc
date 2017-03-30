@@ -28,41 +28,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_SHA512MODEL_H_
-#define EXAMPLE_SHA512MODEL_H_
+#include "example/BenchModel.h"
 
-#include <des/Event.h>
-#include <des/Model.h>
-#include <des/Simulator.h>
-#include <prim/prim.h>
-
-#include <string>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 
 namespace example {
 
-class Sha512Model : public des::Model {
- public:
-  Sha512Model(des::Simulator* _simulator, const std::string& _name,
-              const des::Model* _parent, u64 _id, u64 _count,
-              bool _shiftyEpsilon, bool _verbose);
-  ~Sha512Model();
-  void function();
+BenchModel::BenchModel(des::Simulator* _simulator, const std::string& _name,
+                       const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
+                       bool _verbose)
+    : des::Model(_simulator, _name, _parent), id_(_id), count_(0), run_(true),
+      shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose), numModels_(0),
+      allModels_(nullptr) {}
 
- private:
-  class Event : public des::Event {
-   public:
-    Event(des::Model* _model, des::EventHandler _handler);
-  };
+BenchModel::~BenchModel() {}
 
-  void handler(des::Event* _event);
+void BenchModel::kill() {
+  run_ = false;
+}
 
-  u64 id_;
-  u64 count_;
-  bool shiftyEpsilon_;
-  bool verbose_;
-  Event evt_;
-};
+void BenchModel::allModels(std::vector<BenchModel*>* _allModels) {
+  numModels_ = _allModels->size();
+  allModels_ = _allModels;
+}
 
 }  // namespace example
-
-#endif  // EXAMPLE_SHA512MODEL_H_

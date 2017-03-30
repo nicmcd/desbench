@@ -28,7 +28,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/Sha1Model.h"
+#include "example/ShaModel.h"
 
 #include <openssl/sha.h>
 
@@ -36,51 +36,70 @@
 #include <cstdio>
 #include <cstring>
 
+#include <algorithm>
+
 namespace example {
 
-Sha1Model::Sha1Model(des::Simulator* _simulator, const std::string& _name,
-                     const des::Model* _parent, u64 _id, u64 _count,
-                     bool _shiftyEpsilon, bool _verbose)
-    : des::Model(_simulator, _name, _parent), id_(_id), count_(_count),
-      shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose),
-      evt_(this, static_cast<des::EventHandler>(&Sha1Model::handler)) {
-  if (count_ > 0) {
-    function();  // queue first event
-  }
+static const u64 MAX_HASH_SIZE = std::max(SHA_DIGEST_LENGTH,
+                                          std::max(SHA256_DIGEST_LENGTH,
+                                                   SHA512_DIGEST_LENGTH));
+
+ShaModel::ShaModel(des::Simulator* _simulator, const std::string& _name,
+                   const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
+                   u64 _shaBits, bool _verbose)
+    : BenchModel(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
+      shaBits_(_shaBits),
+      evt_(this, static_cast<des::EventHandler>(&ShaModel::handler)) {
+  hash_ = new unsigned char[MAX_HASH_SIZE];
+
+  function();  // queue first event
 }
 
-Sha1Model::~Sha1Model() {
-  assert(count_ == 0);
+ShaModel::~ShaModel() {
+  delete[] hash_;
 }
 
-Sha1Model::Event::Event(des::Model* _model,
-                        des::EventHandler _handler)
+ShaModel::Event::Event(des::Model* _model,
+                       des::EventHandler _handler)
     : des::Event(_model, _handler) {}
 
-void Sha1Model::function() {
-  evt_.time = simulator->time();
-  evt_.time.tick++;
+void ShaModel::function() {
+  evt_.time = simulator->time() + 1;
   if (shiftyEpsilon_) {
-    evt_.time.epsilon = (id_ + count_) % 254;
+    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
   } else {
-    evt_.time.epsilon = 0;
+    evt_.time.setEpsilon(0);
   }
   simulator->addEvent(&evt_);
 }
 
-void Sha1Model::handler(des::Event* _event) {
+void ShaModel::handler(des::Event* _event) {
   Event* me = reinterpret_cast<Event*>(_event);
   (void)me;
 
-  count_--;
+  count_++;
   if (verbose_ || count_ < 5) {
     dlogf("hello world, from model #%lu, count %lu", id_, count_);
   }
 
-  if (count_ > 0) {
-    unsigned char hash[SHA_DIGEST_LENGTH];
-    SHA1(reinterpret_cast<const u8*>(baseName().c_str()),
-         baseName().size(), hash);
+  if (run_) {
+    switch (shaBits_) {
+      case 1:
+        SHA1(reinterpret_cast<const u8*>(baseName().c_str()),
+             baseName().size(), hash_);
+        break;
+      case 256:
+        SHA256(reinterpret_cast<const u8*>(baseName().c_str()),
+               baseName().size(), hash_);
+        break;
+      case 512:
+        SHA512(reinterpret_cast<const u8*>(baseName().c_str()),
+               baseName().size(), hash_);
+        break;
+      default:
+        assert(false);
+    }
+
     function();  // queue another event
   }
 }

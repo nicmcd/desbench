@@ -38,13 +38,15 @@
 
 #include <string>
 
+#include "example/BenchModel.h"
+
 namespace example {
 
-class SimpleModel : public des::Model {
+class SimpleModel : public BenchModel {
  public:
   SimpleModel(des::Simulator* _simulator, const std::string& _name,
-              const des::Model* _parent, u64 _id, u64 _count,
-              bool _shiftyEpsilon, bool _verbose);
+              const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
+              bool _verbose);
   ~SimpleModel();
   void function(s32 _a, s32 _b, s32 _c);
 
@@ -59,10 +61,6 @@ class SimpleModel : public des::Model {
 
   void handler(des::Event* _event);
 
-  u64 id_;
-  u64 count_;
-  bool shiftyEpsilon_;
-  bool verbose_;
   Event evt_;
 };
 

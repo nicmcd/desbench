@@ -39,13 +39,15 @@
 #include <random>
 #include <string>
 
+#include "example/BenchModel.h"
+
 namespace example {
 
-class MemoryModel : public des::Model {
+class MemoryModel : public BenchModel {
  public:
   MemoryModel(des::Simulator* _simulator, const std::string& _name,
-              const des::Model* _parent, u64 _id, u64 _count,
-              bool _shiftyEpsilon, u64 _bytes, bool _verbose);
+              const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
+              u64 _bytes, bool _verbose);
   ~MemoryModel();
   void function();
 
@@ -58,14 +60,10 @@ class MemoryModel : public des::Model {
 
   void handler(des::Event* _event);
 
-  u64 id_;
-  u64 count_;
-  bool shiftyEpsilon_;
   u64 bytes_;
   u8* mem_;
   std::mt19937_64 rnd_;
   u64 sum_;
-  bool verbose_;
   Event evt_;
 };
 

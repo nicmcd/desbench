@@ -37,11 +37,10 @@
 namespace example {
 
 MemoryModel::MemoryModel(des::Simulator* _simulator, const std::string& _name,
-                         const des::Model* _parent, u64 _id, u64 _count,
+                         const des::Model* _parent, u64 _id,
                          bool _shiftyEpsilon, u64 _bytes, bool _verbose)
-    : des::Model(_simulator, _name, _parent), id_(_id), count_(_count),
-      shiftyEpsilon_(_shiftyEpsilon), bytes_(_bytes), sum_(0),
-      verbose_(_verbose),
+    : BenchModel(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
+      bytes_(_bytes),
       evt_(this, static_cast<des::EventHandler>(&MemoryModel::handler)) {
   // give the random generator a seed
   rnd_.seed(id_);
@@ -54,13 +53,10 @@ MemoryModel::MemoryModel(des::Simulator* _simulator, const std::string& _name,
   mem_[bytes_ - 1] = (u8)(rnd_() % 256);
 
   // queue first event
-  if (count_ > 0) {
-    function();
-  }
+  function();
 }
 
 MemoryModel::~MemoryModel() {
-  assert(count_ == 0);
   delete[] mem_;
 }
 
@@ -69,12 +65,11 @@ MemoryModel::Event::Event(des::Model* _model,
     : des::Event(_model, _handler), index(0) {}
 
 void MemoryModel::function() {
-  evt_.time = simulator->time();
-  evt_.time.tick++;
+  evt_.time = simulator->time() + 1;
   if (shiftyEpsilon_) {
-    evt_.time.epsilon = (id_ + count_) % 254;
+    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
   } else {
-    evt_.time.epsilon = 0;
+    evt_.time.setEpsilon(0);
   }
   evt_.index = rnd_() % bytes_;
   simulator->addEvent(&evt_);
@@ -83,14 +78,14 @@ void MemoryModel::function() {
 void MemoryModel::handler(des::Event* _event) {
   Event* me = reinterpret_cast<Event*>(_event);
 
-  count_--;
+  count_++;
   if (verbose_ || count_ < 5) {
     dlogf("hello world, from model #%lu, count %lu", id_, count_);
   }
 
   sum_ += mem_[me->index];
 
-  if (count_ > 0) {
+  if (run_) {
     function();  // queue another event
   }
 }

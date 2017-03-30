@@ -28,8 +28,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_SHA1MODEL_H_
-#define EXAMPLE_SHA1MODEL_H_
+#ifndef EXAMPLE_BENCHMODEL_H_
+#define EXAMPLE_BENCHMODEL_H_
 
 #include <des/Event.h>
 #include <des/Model.h>
@@ -37,32 +37,29 @@
 #include <prim/prim.h>
 
 #include <string>
+#include <vector>
 
 namespace example {
 
-class Sha1Model : public des::Model {
+class BenchModel : public des::Model {
  public:
-  Sha1Model(des::Simulator* _simulator, const std::string& _name,
-            const des::Model* _parent, u64 _id, u64 _count,
-            bool _shiftyEpsilon, bool _verbose);
-  ~Sha1Model();
-  void function();
+  BenchModel(des::Simulator* _simulator, const std::string& _name,
+             const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
+             bool _verbose);
+  ~BenchModel();
+  void kill();
+  void allModels(std::vector<BenchModel*>* _allModels);
 
- private:
-  class Event : public des::Event {
-   public:
-    Event(des::Model* _model, des::EventHandler _handler);
-  };
-
-  void handler(des::Event* _event);
-
+ protected:
   u64 id_;
   u64 count_;
+  bool run_;
   bool shiftyEpsilon_;
   bool verbose_;
-  Event evt_;
+  u64 numModels_;
+  std::vector<BenchModel*>* allModels_;
 };
 
 }  // namespace example
 
-#endif  // EXAMPLE_SHA1MODEL_H_
+#endif  // EXAMPLE_BENCHMODEL_H_
