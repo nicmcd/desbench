@@ -14,9 +14,9 @@ def main():
   ap.add_argument('odir', help='the output directory')
   ap.add_argument('-r', '--runs', type=int, default=1,
                   help='number of runs')
-  ap.add_argument('-e', '--exetime', type=int, default=1,
+  ap.add_argument('-e', '--exetime', type=int, default=10,
                   help='execution time per run in seconds')
-  ap.add_argument('-s', '--step', type=int, default=1,
+  ap.add_argument('-s', '--step', type=int, default=4,
                   help='step size for number of cpus (threads)')
   args = ap.parse_args();
 
@@ -91,11 +91,11 @@ def main():
 
 def extractRate(filename):
   with open(filename, 'r') as fd:
-    lines = fd.readlines();
-    words = lines[8].split()
-    return float(words[-1])
-
-
+    for line in fd:
+      if line.find('Events per second') == 0:
+        words = line.split()
+        return float(words[-1])
+  assert False, 'Never found the keywords in {}'.format(filename)
 
 if __name__ == '__main__':
   main()
