@@ -29,6 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <des/des.h>
+#include <des/util/BasicObserver.h>
 #include <prim/prim.h>
 #include <tclap/CmdLine.h>
 
@@ -91,6 +92,11 @@ void test(u32 _numThreads, u64 _numModels, const std::string& _modelType,
           u64 _executionTime, bool _shiftyEpsilon, bool _verbose,
           u64 generic) {
   des::Simulator* sim = new des::Simulator(_numThreads);
+  des::Logger* log = new des::Logger("-");
+  sim->setLogger(log);
+  des::BasicObserver* ob = new des::BasicObserver(log, true, true);
+  sim->addObserver(ob);
+
   if (_verbose) {
     for (u32 id = 0; id < _numModels; id++) {
       sim->addDebugName("Model_" + std::to_string(id));
@@ -115,7 +121,7 @@ void test(u32 _numThreads, u64 _numModels, const std::string& _modelType,
   std::thread killer(executionTimer, &models, _executionTime);
 
   printf("simulation beginning...\n");
-  sim->simulate(true);
+  sim->simulate();
 
   killer.join();
 
@@ -138,7 +144,7 @@ s32 main(s32 _argc, char** _argv) {
     TCLAP::CmdLine cmd(
         "Command description message", ' ', "0.0.1");
     TCLAP::ValueArg<u32> threadsArg(
-        "t", "threads", "Number of threads", false, 0, "u32", cmd);
+        "t", "threads", "Number of threads", false, 1, "u32", cmd);
     TCLAP::ValueArg<u32> modelsArg(
         "m", "models", "Number of models", false, 1, "u32", cmd);
     TCLAP::ValueArg<std::string> nameArg(
