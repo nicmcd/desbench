@@ -108,10 +108,10 @@ def main():
 
 def extractRate(filename):
   with open(filename, 'r') as fd:
-    lines = fd.readlines();
-    words = lines[8].split()
-    return float(words[-1])
-
+    for line in fd:
+      if line.find('Events per real second') == 0:
+        words = line.split()
+        return float(words[-1])
 
 
 if __name__ == '__main__':
