@@ -28,41 +28,31 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_SHAMODEL_H_
-#define EXAMPLE_SHAMODEL_H_
+#include "example/BenchComponent.h"
 
-#include <des/Event.h>
-#include <des/Model.h>
-#include <des/Simulator.h>
-#include <prim/prim.h>
-
-#include <string>
-
-#include "example/BenchModel.h"
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 
 namespace example {
 
-class ShaModel : public BenchModel {
- public:
-  ShaModel(des::Simulator* _simulator, const std::string& _name,
-           const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
-           u64 _shaBits, bool _verbose);
-  ~ShaModel();
-  void function();
+BenchComponent::BenchComponent(
+    des::Simulator* _simulator, const std::string& _name,
+    const des::Component* _parent, u64 _id, bool _shiftyEpsilon, bool _verbose)
+    : des::Component(_simulator, _name, _parent), id_(_id), count_(0),
+      run_(true), shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose),
+      numComponents_(0), allComponents_(nullptr) {}
 
- private:
-  class Event : public des::Event {
-   public:
-    Event(des::Model* _model, des::EventHandler _handler);
-  };
+BenchComponent::~BenchComponent() {}
 
-  void handler(des::Event* _event);
+void BenchComponent::kill() {
+  run_ = false;
+}
 
-  unsigned char* hash_;
-  const u64 shaBits_;
-  Event evt_;
-};
+void BenchComponent::allComponents(
+    std::vector<BenchComponent*>* _allComponents) {
+  numComponents_ = _allComponents->size();
+  allComponents_ = _allComponents;
+}
 
 }  // namespace example
-
-#endif  // EXAMPLE_SHAMODEL_H_

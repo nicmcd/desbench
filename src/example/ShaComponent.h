@@ -28,66 +28,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/MemoryModel.h"
+#ifndef EXAMPLE_SHACOMPONENT_H_
+#define EXAMPLE_SHACOMPONENT_H_
 
-#include <cassert>
-#include <cstdio>
-#include <cstring>
+#include <des/Event.h>
+#include <des/Component.h>
+#include <des/Simulator.h>
+#include <prim/prim.h>
+
+#include <string>
+
+#include "example/BenchComponent.h"
 
 namespace example {
 
-MemoryModel::MemoryModel(des::Simulator* _simulator, const std::string& _name,
-                         const des::Model* _parent, u64 _id,
-                         bool _shiftyEpsilon, u64 _bytes, bool _verbose)
-    : BenchModel(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
-      bytes_(_bytes),
-      evt_(this, static_cast<des::EventHandler>(&MemoryModel::handler)) {
-  // give the random generator a seed
-  rnd_.seed(id_);
+class ShaComponent : public BenchComponent {
+ public:
+  ShaComponent(des::Simulator* _simulator, const std::string& _name,
+               const des::Component* _parent, u64 _id, bool _shiftyEpsilon,
+               u64 _shaBits, bool _verbose);
+  ~ShaComponent();
+  void function();
 
-  // create and initialize memory
-  mem_ = new u8[bytes_];
-  for (u64 byte = 0; byte < bytes_; byte += 4096) {
-    mem_[byte] = (u8)(rnd_() % 256);
-  }
-  mem_[bytes_ - 1] = (u8)(rnd_() % 256);
+ private:
+  class Event : public des::Event {
+   public:
+    Event(des::Component* _component, des::EventHandler _handler);
+  };
 
-  // queue first event
-  function();
-}
+  void handler(des::Event* _event);
 
-MemoryModel::~MemoryModel() {
-  delete[] mem_;
-}
-
-MemoryModel::Event::Event(des::Model* _model,
-                          des::EventHandler _handler)
-    : des::Event(_model, _handler), index(0) {}
-
-void MemoryModel::function() {
-  evt_.time = simulator->time() + 1;
-  if (shiftyEpsilon_) {
-    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
-  } else {
-    evt_.time.setEpsilon(0);
-  }
-  evt_.index = rnd_() % bytes_;
-  simulator->addEvent(&evt_);
-}
-
-void MemoryModel::handler(des::Event* _event) {
-  Event* me = reinterpret_cast<Event*>(_event);
-
-  count_++;
-  if (verbose_ || count_ < 5) {
-    dlogf("hello world, from model #%lu, count %lu", id_, count_);
-  }
-
-  sum_ += mem_[me->index];
-
-  if (run_) {
-    function();  // queue another event
-  }
-}
+  unsigned char* hash_;
+  const u64 shaBits_;
+  Event evt_;
+};
 
 }  // namespace example
+
+#endif  // EXAMPLE_SHACOMPONENT_H_

@@ -28,45 +28,67 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_MEMORYMODEL_H_
-#define EXAMPLE_MEMORYMODEL_H_
+#include "example/MemoryComponent.h"
 
-#include <des/Event.h>
-#include <des/Model.h>
-#include <des/Simulator.h>
-#include <prim/prim.h>
-
-#include <random>
-#include <string>
-
-#include "example/BenchModel.h"
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 
 namespace example {
 
-class MemoryModel : public BenchModel {
- public:
-  MemoryModel(des::Simulator* _simulator, const std::string& _name,
-              const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
-              u64 _bytes, bool _verbose);
-  ~MemoryModel();
-  void function();
+MemoryComponent::MemoryComponent(
+    des::Simulator* _simulator, const std::string& _name,
+    const des::Component* _parent, u64 _id, bool _shiftyEpsilon, u64 _bytes,
+    bool _verbose)
+    : BenchComponent(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
+      bytes_(_bytes),
+      evt_(this, static_cast<des::EventHandler>(&MemoryComponent::handler)) {
+  // give the random generator a seed
+  rnd_.seed(id_);
 
- private:
-  class Event : public des::Event {
-   public:
-    Event(des::Model* _model, des::EventHandler _handler);
-    u64 index;
-  };
+  // create and initialize memory
+  mem_ = new u8[bytes_];
+  for (u64 byte = 0; byte < bytes_; byte += 4096) {
+    mem_[byte] = (u8)(rnd_() % 256);
+  }
+  mem_[bytes_ - 1] = (u8)(rnd_() % 256);
 
-  void handler(des::Event* _event);
+  // queue first event
+  function();
+}
 
-  u64 bytes_;
-  u8* mem_;
-  std::mt19937_64 rnd_;
-  u64 sum_;
-  Event evt_;
-};
+MemoryComponent::~MemoryComponent() {
+  delete[] mem_;
+}
+
+MemoryComponent::Event::Event(des::Component* _component,
+                              des::EventHandler _handler)
+    : des::Event(_component, _handler), index(0) {}
+
+void MemoryComponent::function() {
+  evt_.time = simulator->time() + 1;
+  if (shiftyEpsilon_) {
+    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
+  } else {
+    evt_.time.setEpsilon(0);
+  }
+  evt_.index = rnd_() % bytes_;
+  simulator->addEvent(&evt_);
+}
+
+void MemoryComponent::handler(des::Event* _event) {
+  Event* me = reinterpret_cast<Event*>(_event);
+
+  count_++;
+  if (verbose_ || count_ < 5) {
+    dlogf("hello world, from component #%lu, count %lu", id_, count_);
+  }
+
+  sum_ += mem_[me->index];
+
+  if (run_) {
+    function();  // queue another event
+  }
+}
 
 }  // namespace example
-
-#endif  // EXAMPLE_MEMORYMODEL_H_

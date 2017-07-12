@@ -28,32 +28,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_SIMPLEMODEL_H_
-#define EXAMPLE_SIMPLEMODEL_H_
+#ifndef EXAMPLE_SIMPLECOMPONENT_H_
+#define EXAMPLE_SIMPLECOMPONENT_H_
 
 #include <des/Event.h>
-#include <des/Model.h>
+#include <des/Component.h>
 #include <des/Simulator.h>
 #include <prim/prim.h>
 
 #include <string>
 
-#include "example/BenchModel.h"
+#include "example/BenchComponent.h"
 
 namespace example {
 
-class SimpleModel : public BenchModel {
+class SimpleComponent : public BenchComponent {
  public:
-  SimpleModel(des::Simulator* _simulator, const std::string& _name,
-              const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
-              bool _verbose);
-  ~SimpleModel();
+  SimpleComponent(des::Simulator* _simulator, const std::string& _name,
+                  const des::Component* _parent, u64 _id, bool _shiftyEpsilon,
+                  bool _verbose);
+  ~SimpleComponent();
   void function(s32 _a, s32 _b, s32 _c);
 
  private:
   class Event : public des::Event {
    public:
-    Event(des::Model* _model, des::EventHandler _handler);
+    Event(des::Component* _component, des::EventHandler _handler);
     s32 a;
     s32 b;
     s32 c;
@@ -66,4 +66,4 @@ class SimpleModel : public BenchModel {
 
 }  // namespace example
 
-#endif  // EXAMPLE_SIMPLEMODEL_H_
+#endif  // EXAMPLE_SIMPLECOMPONENT_H_

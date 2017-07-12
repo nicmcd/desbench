@@ -28,46 +28,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_MIXMODEL_H_
-#define EXAMPLE_MIXMODEL_H_
+#ifndef EXAMPLE_BENCHCOMPONENT_H_
+#define EXAMPLE_BENCHCOMPONENT_H_
 
 #include <des/Event.h>
-#include <des/Model.h>
+#include <des/Component.h>
 #include <des/Simulator.h>
 #include <prim/prim.h>
 
-#include <random>
 #include <string>
 #include <vector>
 
-#include "example/BenchModel.h"
-
 namespace example {
 
-class MixModel : public BenchModel {
+class BenchComponent : public des::Component {
  public:
-  MixModel(des::Simulator* _simulator, const std::string& _name,
-           const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
-           u64 _others, bool _verbose);
-  ~MixModel();
-  void function();
+  BenchComponent(des::Simulator* _simulator, const std::string& _name,
+                 const des::Component* _parent, u64 _id, bool _shiftyEpsilon,
+                 bool _verbose);
+  ~BenchComponent();
+  void kill();
+  void allComponents(std::vector<BenchComponent*>* _allComponents);
 
- private:
-  class Event : public des::Event {
-   public:
-    Event(des::Model* _model, des::EventHandler _handler);
-  };
-
-  void handleMine(des::Event* _event);
-  void handleOthers(des::Event* _event);
-
-  u64 others_;
-  std::mt19937_64 rnd_;
-  bool epoch_;
-  std::vector<Event*> evts_;
-  u64 sum_;
+ protected:
+  u64 id_;
+  u64 count_;
+  bool run_;
+  bool shiftyEpsilon_;
+  bool verbose_;
+  u64 numComponents_;
+  std::vector<BenchComponent*>* allComponents_;
 };
 
 }  // namespace example
 
-#endif  // EXAMPLE_MIXMODEL_H_
+#endif  // EXAMPLE_BENCHCOMPONENT_H_

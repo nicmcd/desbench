@@ -28,39 +28,58 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_EMPTYMODEL_H_
-#define EXAMPLE_EMPTYMODEL_H_
+#include "example/SimpleComponent.h"
 
-#include <des/Event.h>
-#include <des/Model.h>
-#include <des/Simulator.h>
-#include <prim/prim.h>
-
-#include <string>
-
-#include "example/BenchModel.h"
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 
 namespace example {
 
-class EmptyModel : public BenchModel {
- public:
-  EmptyModel(des::Simulator* _simulator, const std::string& _name,
-             const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
-             bool _verbose);
-  ~EmptyModel();
-  void function();
+SimpleComponent::SimpleComponent(
+    des::Simulator* _simulator, const std::string& _name,
+    const des::Component* _parent, u64 _id, bool _shiftyEpsilon, bool _verbose)
+    : BenchComponent(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
+      evt_(this, static_cast<des::EventHandler>(&SimpleComponent::handler)) {
+  s32 na = evt_.a + 1;
+  s32 nb = evt_.b + 1;
+  s32 nc = evt_.c + 1;
+  function(na, nb, nc);  // queue first event
+}
 
- private:
-  class Event : public des::Event {
-   public:
-    Event(des::Model* _model, des::EventHandler _handler);
-  };
+SimpleComponent::~SimpleComponent() {}
 
-  void handler(des::Event* _event);
+SimpleComponent::Event::Event(des::Component* _component,
+                              des::EventHandler _handler)
+    : des::Event(_component, _handler), a(0), b(0), c(0) {}
 
-  Event evt_;
-};
+void SimpleComponent::function(s32 _a, s32 _b, s32 _c) {
+  evt_.time = simulator->time() + 1;
+  if (shiftyEpsilon_) {
+    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
+  } else {
+    evt_.time.setEpsilon(0);
+  }
+  evt_.a = _a;
+  evt_.b = _b;
+  evt_.c = _c;
+  simulator->addEvent(&evt_);
+}
+
+void SimpleComponent::handler(des::Event* _event) {
+  Event* me = reinterpret_cast<Event*>(_event);
+
+  count_++;
+  if (verbose_ || count_ < 5) {
+    dlogf("hello world, from component #%lu, count %lu", id_, count_);
+  }
+
+  if (run_) {
+    s32 na = me->a + 1;
+    s32 nb = me->b + 1;
+    s32 nc = me->c + 1;
+    function(na, nb, nc);  // queue another event
+  }
+}
 
 }  // namespace example
-
-#endif  // EXAMPLE_EMPTYMODEL_H_

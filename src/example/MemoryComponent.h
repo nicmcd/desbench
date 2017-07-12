@@ -28,30 +28,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/BenchModel.h"
+#ifndef EXAMPLE_MEMORYCOMPONENT_H_
+#define EXAMPLE_MEMORYCOMPONENT_H_
 
-#include <cassert>
-#include <cstdio>
-#include <cstring>
+#include <des/Event.h>
+#include <des/Component.h>
+#include <des/Simulator.h>
+#include <prim/prim.h>
+
+#include <random>
+#include <string>
+
+#include "example/BenchComponent.h"
 
 namespace example {
 
-BenchModel::BenchModel(des::Simulator* _simulator, const std::string& _name,
-                       const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
-                       bool _verbose)
-    : des::Model(_simulator, _name, _parent), id_(_id), count_(0), run_(true),
-      shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose), numModels_(0),
-      allModels_(nullptr) {}
+class MemoryComponent : public BenchComponent {
+ public:
+  MemoryComponent(des::Simulator* _simulator, const std::string& _name,
+                  const des::Component* _parent, u64 _id, bool _shiftyEpsilon,
+                  u64 _bytes, bool _verbose);
+  ~MemoryComponent();
+  void function();
 
-BenchModel::~BenchModel() {}
+ private:
+  class Event : public des::Event {
+   public:
+    Event(des::Component* _component, des::EventHandler _handler);
+    u64 index;
+  };
 
-void BenchModel::kill() {
-  run_ = false;
-}
+  void handler(des::Event* _event);
 
-void BenchModel::allModels(std::vector<BenchModel*>* _allModels) {
-  numModels_ = _allModels->size();
-  allModels_ = _allModels;
-}
+  u64 bytes_;
+  u8* mem_;
+  std::mt19937_64 rnd_;
+  u64 sum_;
+  Event evt_;
+};
 
 }  // namespace example
+
+#endif  // EXAMPLE_MEMORYCOMPONENT_H_

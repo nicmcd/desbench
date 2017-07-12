@@ -40,57 +40,57 @@
 #include <tuple>
 #include <vector>
 
-#include "example/BenchModel.h"
-#include "example/EmptyModel.h"
-#include "example/MemoryModel.h"
-#include "example/MixModel.h"
-#include "example/ShaModel.h"
-#include "example/SimpleModel.h"
+#include "example/BenchComponent.h"
+#include "example/EmptyComponent.h"
+#include "example/MemoryComponent.h"
+#include "example/MixComponent.h"
+#include "example/ShaComponent.h"
+#include "example/SimpleComponent.h"
 
-void executionTimer(std::vector<example::BenchModel*>* _models,
+void executionTimer(std::vector<example::BenchComponent*>* _components,
                     u64 _executionTime) {
   // go to sleep
   std::this_thread::sleep_for(std::chrono::seconds(_executionTime));
 
-  // wake up and kill the models
-  for (example::BenchModel* model : *_models) {
-    model->kill();
+  // wake up and kill the components
+  for (example::BenchComponent* component : *_components) {
+    component->kill();
   }
 }
 
-example::BenchModel* createModel(
+example::BenchComponent* createComponent(
     const std::string& _type, des::Simulator* _sim, const std::string& _name,
-    u64 _id, bool _shiftyEpsilon, bool _verbose, u32 _numModels,
+    u64 _id, bool _shiftyEpsilon, bool _verbose, u32 _numComponents,
     u64 _generic) {
   if (_type == "empty") {
-    return new example::EmptyModel(
+    return new example::EmptyComponent(
         _sim, _name, nullptr, _id, _shiftyEpsilon, _verbose);
   } else if (_type == "mem") {
-    if (_generic < _numModels) {
-      fprintf(stderr, "ERROR: mem model requires a larger memory usage\n");
+    if (_generic < _numComponents) {
+      fprintf(stderr, "ERROR: mem component requires a larger memory usage\n");
       exit(-1);
     }
-    return new example::MemoryModel(
+    return new example::MemoryComponent(
         _sim, _name, nullptr, _id, _shiftyEpsilon,
-        _generic / _numModels, _verbose);
+        _generic / _numComponents, _verbose);
   } else if (_type == "mix") {
-    return new example::MixModel(
+    return new example::MixComponent(
         _sim, _name, nullptr, _id, _shiftyEpsilon, _generic, _verbose);
   } else if (_type == "sha") {
-    return new example::ShaModel(
+    return new example::ShaComponent(
         _sim, _name, nullptr, _id, _shiftyEpsilon, _generic, _verbose);
   } else if (_type == "simple") {
-    return new example::SimpleModel(
+    return new example::SimpleComponent(
         _sim, _name, nullptr, _id, _shiftyEpsilon, _verbose);
   } else {
-    fprintf(stderr, "invalid model type: %s\n", _type.c_str());
+    fprintf(stderr, "invalid component type: %s\n", _type.c_str());
     exit(-1);
   }
 }
 
-void test(u32 _numThreads, u64 _numModels, const std::string& _modelType,
-          u64 _executionTime, bool _shiftyEpsilon, bool _verbose,
-          u64 generic) {
+void test(
+    u32 _numThreads, u64 _numComponents, const std::string& _componentType,
+    u64 _executionTime, bool _shiftyEpsilon, bool _verbose, u64 generic) {
   des::Simulator* sim = new des::Simulator(_numThreads);
   des::Logger* log = new des::Logger("-");
   sim->setLogger(log);
@@ -98,43 +98,44 @@ void test(u32 _numThreads, u64 _numModels, const std::string& _modelType,
   sim->addObserver(ob);
 
   if (_verbose) {
-    for (u32 id = 0; id < _numModels; id++) {
-      sim->addDebugName("Model_" + std::to_string(id));
+    for (u32 id = 0; id < _numComponents; id++) {
+      sim->addDebugName("Component_" + std::to_string(id));
     }
   }
 
-  std::vector<example::BenchModel*> models(_numModels);
-  for (u32 id = 0; id < _numModels; id++) {
-    std::string name = "Model_" + std::to_string(id);
-    models.at(id) = createModel(_modelType, sim, name, id, _shiftyEpsilon,
-                                _verbose, _numModels, generic);
+  std::vector<example::BenchComponent*> components(_numComponents);
+  for (u32 id = 0; id < _numComponents; id++) {
+    std::string name = "Component_" + std::to_string(id);
+    components.at(id) = createComponent(
+        _componentType, sim, name, id, _shiftyEpsilon, _verbose,
+        _numComponents, generic);
   }
 
-  for (u32 id = 0; id < _numModels; id++) {
-    models.at(id)->allModels(&models);
+  for (u32 id = 0; id < _numComponents; id++) {
+    components.at(id)->allComponents(&components);
   }
 
   des::Logger logger;
   sim->setLogger(&logger);
   sim->debugCheck();
 
-  std::thread killer(executionTimer, &models, _executionTime);
+  std::thread killer(executionTimer, &components, _executionTime);
 
   printf("simulation beginning...\n");
   sim->simulate();
 
   killer.join();
 
-  for (u32 id = 0; id < _numModels; id++) {
-    delete models.at(id);
+  for (u32 id = 0; id < _numComponents; id++) {
+    delete components.at(id);
   }
   delete sim;
 }
 
 s32 main(s32 _argc, char** _argv) {
   u32 threads = U32_MAX;
-  u64 models = U64_MAX;
-  std::string modelType = "";
+  u64 components = U64_MAX;
+  std::string componentType = "";
   u64 executionTime = 1;
   u64 generic = 0;
   bool shiftyEpsilon = false;
@@ -145,15 +146,15 @@ s32 main(s32 _argc, char** _argv) {
         "Command description message", ' ', "0.0.1");
     TCLAP::ValueArg<u32> threadsArg(
         "t", "threads", "Number of threads", false, 1, "u32", cmd);
-    TCLAP::ValueArg<u32> modelsArg(
-        "m", "models", "Number of models", false, 1, "u32", cmd);
+    TCLAP::ValueArg<u32> componentsArg(
+        "c", "components", "Number of components", false, 1, "u32", cmd);
     TCLAP::ValueArg<std::string> nameArg(
-        "n", "name", "Model type name", false, "empty", "string", cmd);
+        "n", "name", "Component type name", false, "empty", "string", cmd);
     TCLAP::ValueArg<u32> executionTimeArg(
         "e", "execution", "Execution time in seconds", false, 1, "u32", cmd);
     TCLAP::ValueArg<u64> genericArg(
-        "g", "generic", "Value passed to model constructor", false, 0, "u64",
-        cmd);
+        "g", "generic", "Value passed to component constructor", false, 0,
+        "u64", cmd);
     TCLAP::SwitchArg shiftyArg(
         "s", "shifty", "Shifty Epsilon", cmd, false);
     TCLAP::SwitchArg verboseArg(
@@ -161,8 +162,8 @@ s32 main(s32 _argc, char** _argv) {
 
     cmd.parse(_argc, _argv);
     threads = threadsArg.getValue();
-    models = modelsArg.getValue();
-    modelType = nameArg.getValue();
+    components = componentsArg.getValue();
+    componentType = nameArg.getValue();
     executionTime = executionTimeArg.getValue();
     shiftyEpsilon = shiftyArg.getValue();
     verbose = verboseArg.getValue();
@@ -173,11 +174,11 @@ s32 main(s32 _argc, char** _argv) {
     exit(-1);
   }
 
-  printf("threads=%u models=%lu type=%s executionTime=%lu shifty=%d "
+  printf("threads=%u components=%lu type=%s executionTime=%lu shifty=%d "
          "verbose=%d generic=%lu\n",
-         threads, models, modelType.c_str(), executionTime, shiftyEpsilon,
-         verbose, generic);
-  test(threads, models, modelType, executionTime, shiftyEpsilon, verbose,
-       generic);
+         threads, components, componentType.c_str(), executionTime,
+         shiftyEpsilon, verbose, generic);
+  test(threads, components, componentType, executionTime, shiftyEpsilon,
+       verbose, generic);
   return 0;
 }

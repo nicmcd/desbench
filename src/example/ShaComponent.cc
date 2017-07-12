@@ -28,29 +28,43 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/EmptyModel.h"
+#include "example/ShaComponent.h"
+
+#include <openssl/sha.h>
 
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 
+#include <algorithm>
+
 namespace example {
 
-EmptyModel::EmptyModel(des::Simulator* _simulator, const std::string& _name,
-                       const des::Model* _parent, u64 _id, bool _shiftyEpsilon,
-                       bool _verbose)
-    : BenchModel(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
-      evt_(this, static_cast<des::EventHandler>(&EmptyModel::handler)) {
+static const u64 MAX_HASH_SIZE = std::max(SHA_DIGEST_LENGTH,
+                                          std::max(SHA256_DIGEST_LENGTH,
+                                                   SHA512_DIGEST_LENGTH));
+
+ShaComponent::ShaComponent(
+    des::Simulator* _simulator, const std::string& _name,
+    const des::Component* _parent, u64 _id, bool _shiftyEpsilon, u64 _shaBits,
+    bool _verbose)
+    : BenchComponent(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
+      shaBits_(_shaBits),
+      evt_(this, static_cast<des::EventHandler>(&ShaComponent::handler)) {
+  hash_ = new unsigned char[MAX_HASH_SIZE];
+
   function();  // queue first event
 }
 
-EmptyModel::~EmptyModel() {}
+ShaComponent::~ShaComponent() {
+  delete[] hash_;
+}
 
-EmptyModel::Event::Event(des::Model* _model,
-                         des::EventHandler _handler)
-    : des::Event(_model, _handler) {}
+ShaComponent::Event::Event(des::Component* _component,
+                           des::EventHandler _handler)
+    : des::Event(_component, _handler) {}
 
-void EmptyModel::function() {
+void ShaComponent::function() {
   evt_.time = simulator->time() + 1;
   if (shiftyEpsilon_) {
     evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
@@ -60,16 +74,33 @@ void EmptyModel::function() {
   simulator->addEvent(&evt_);
 }
 
-void EmptyModel::handler(des::Event* _event) {
+void ShaComponent::handler(des::Event* _event) {
   Event* me = reinterpret_cast<Event*>(_event);
   (void)me;
 
   count_++;
   if (verbose_ || count_ < 5) {
-    dlogf("hello world, from model #%lu, count %lu", id_, count_);
+    dlogf("hello world, from component #%lu, count %lu", id_, count_);
   }
 
   if (run_) {
+    switch (shaBits_) {
+      case 1:
+        SHA1(reinterpret_cast<const u8*>(baseName().c_str()),
+             baseName().size(), hash_);
+        break;
+      case 256:
+        SHA256(reinterpret_cast<const u8*>(baseName().c_str()),
+               baseName().size(), hash_);
+        break;
+      case 512:
+        SHA512(reinterpret_cast<const u8*>(baseName().c_str()),
+               baseName().size(), hash_);
+        break;
+      default:
+        assert(false);
+    }
+
     function();  // queue another event
   }
 }
