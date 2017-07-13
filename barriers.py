@@ -54,9 +54,10 @@ def main():
 
   tm.run_tasks()
 
+  # gather all data
   data = {}
   for model in MODELS:
-    data[model] = {'runtime': [], 'rate': []}
+    data[model] = {'rate': []}
     for cpus in CPUS:
       runtime_sum = 0
       rate_sum = 0
@@ -68,6 +69,22 @@ def main():
       rate_sum /= RUNS
       data[model]['rate'].append(rate_sum)
 
+  # print the CSV file
+  with open(os.path.join(args.odir, 'throughput.csv'), 'w') as fd:
+    # print the header
+    print('Benchmark,', file=fd, end='')
+    for cpus in CPUS:
+      print('{},'.format(cpus), file=fd, end='')
+    print('', file=fd)
+
+    # print each row
+    for model in sorted(MODELS):
+      print('{},'.format(model), file=fd, end='')
+      for idx in range(len(CPUS)):
+        print('{},'.format(data[model]['rate'][idx]), file=fd, end='')
+      print('', file=fd)
+
+  # plot the PNG file
   cmap = plt.get_cmap('gist_rainbow')
   colors = [cmap(idx) for idx in numpy.linspace(0, 1, len(MODELS))]
 
