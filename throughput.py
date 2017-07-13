@@ -18,6 +18,10 @@ def main():
                   help='execution time per run in seconds')
   ap.add_argument('-s', '--step', type=int, default=4,
                   help='step size for number of cpus (threads)')
+  ap.add_argument('-n', '--numactl', default=None,
+                  help="arguments for numactl");
+  ap.add_argument('-v', '--verbose', action='store_true',
+                  help="show task descriptions");
   args = ap.parse_args();
 
   if not os.path.isdir(args.odir):
@@ -26,7 +30,7 @@ def main():
   rm = taskrun.ResourceManager(
     taskrun.CounterResource('cpus', os.cpu_count(), os.cpu_count()))
   cob = taskrun.FileCleanupObserver()
-  vob = taskrun.VerboseObserver()
+  vob = taskrun.VerboseObserver(description=args.verbose)
   tm = taskrun.TaskManager(resource_manager=rm,
                            observers=[cob, vob],
                            failure_mode=taskrun.FailureMode.AGGRESSIVE_FAIL)
@@ -59,7 +63,10 @@ def main():
       for run in range(0, RUNS):
         name = '{0}_{1}_{2}'.format(model, cpus, run)
         filename = os.path.join(args.odir, name + '.log')
-        cmd = ('{0} -e {1} -c 10000 -t {2} -n {3} -g {4}'.format(
+        cmd = ''
+        if args.numactl:
+          cmd += 'numactl {} '.format(args.numactl)
+        cmd += ('{0} -e {1} -c 10000 -t {2} -n {3} -g {4}'.format(
           args.exe, args.exetime, cpus, MODELS[model][0], MODELS[model][1]))
         task = taskrun.ProcessTask(tm, name, cmd)
         task.stdout_file = filename
