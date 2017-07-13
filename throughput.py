@@ -59,7 +59,7 @@ def main():
       for run in range(0, RUNS):
         name = '{0}_{1}_{2}'.format(model, cpus, run)
         filename = os.path.join(args.odir, name + '.log')
-        cmd = ('{0} -e {1} -m 10000 -t {2} -n {3} -g {4}'.format(
+        cmd = ('{0} -e {1} -c 10000 -t {2} -n {3} -g {4}'.format(
           args.exe, args.exetime, cpus, MODELS[model][0], MODELS[model][1]))
         task = taskrun.ProcessTask(tm, name, cmd)
         task.stdout_file = filename
