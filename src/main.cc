@@ -30,7 +30,10 @@
  */
 #include <des/des.h>
 #include <des/util/BasicObserver.h>
+#include <des/util/RandomMapper.h>
+#include <des/util/RoundRobinMapper.h>
 #include <prim/prim.h>
+#include <rnd/Random.h>
 #include <tclap/CmdLine.h>
 
 #include <cmath>
@@ -89,9 +92,23 @@ example::BenchComponent* createComponent(
 }
 
 void test(
-    u32 _numThreads, u64 _numComponents, const std::string& _componentType,
-    u64 _executionTime, bool _shiftyEpsilon, bool _verbose, u64 generic) {
-  des::Simulator* sim = new des::Simulator(_numThreads);
+    u32 _numThreads, std::string _mapping, u64 _numComponents,
+    const std::string& _componentType, u64 _executionTime, bool _shiftyEpsilon,
+    bool _verbose, u64 generic) {
+  rnd::Random rnd;
+  rnd.seed(12345678);
+
+  des::Mapper* mapper = nullptr;
+  if (_mapping == "round_robin") {
+    mapper = new des::RoundRobinMapper();
+  } else if (_mapping == "random") {
+    mapper = new des::RandomMapper(&rnd);
+  } else {
+    fprintf(stderr, "invalid mapping algorithm: %s\n", _mapping.c_str());
+    exit(-1);
+  }
+
+  des::Simulator* sim = new des::Simulator(_numThreads, mapper);
   des::Logger* log = new des::Logger("-");
   sim->setLogger(log);
   des::BasicObserver* ob = new des::BasicObserver(log, true, true);
@@ -115,8 +132,6 @@ void test(
     components.at(id)->allComponents(&components);
   }
 
-  des::Logger logger;
-  sim->setLogger(&logger);
   sim->debugCheck();
 
   std::thread killer(executionTimer, &components, _executionTime);
@@ -129,11 +144,15 @@ void test(
   for (u32 id = 0; id < _numComponents; id++) {
     delete components.at(id);
   }
+  delete log;
+  delete ob;
   delete sim;
+  delete mapper;
 }
 
 s32 main(s32 _argc, char** _argv) {
   u32 threads = U32_MAX;
+  std::string mapping = "";
   u64 components = U64_MAX;
   std::string componentType = "";
   u64 executionTime = 1;
@@ -146,6 +165,9 @@ s32 main(s32 _argc, char** _argv) {
         "Command description message", ' ', "0.0.1");
     TCLAP::ValueArg<u32> threadsArg(
         "t", "threads", "Number of threads", false, 1, "u32", cmd);
+    TCLAP::ValueArg<std::string> mappingArg(
+        "m", "mapper", "Mapping algorithm", false, "round_robin", "string",
+        cmd);
     TCLAP::ValueArg<u32> componentsArg(
         "c", "components", "Number of components", false, 1, "u32", cmd);
     TCLAP::ValueArg<std::string> nameArg(
@@ -162,6 +184,7 @@ s32 main(s32 _argc, char** _argv) {
 
     cmd.parse(_argc, _argv);
     threads = threadsArg.getValue();
+    mapping = mappingArg.getValue();
     components = componentsArg.getValue();
     componentType = nameArg.getValue();
     executionTime = executionTimeArg.getValue();
@@ -174,11 +197,11 @@ s32 main(s32 _argc, char** _argv) {
     exit(-1);
   }
 
-  printf("threads=%u components=%lu type=%s executionTime=%lu shifty=%d "
-         "verbose=%d generic=%lu\n",
-         threads, components, componentType.c_str(), executionTime,
-         shiftyEpsilon, verbose, generic);
-  test(threads, components, componentType, executionTime, shiftyEpsilon,
-       verbose, generic);
+  printf("threads=%u mapping=%s components=%lu type=%s executionTime=%lu "
+         "shifty=%d verbose=%d generic=%lu\n",
+         threads, mapping.c_str(), components, componentType.c_str(),
+         executionTime, shiftyEpsilon, verbose, generic);
+  test(threads, mapping, components, componentType, executionTime,
+       shiftyEpsilon, verbose, generic);
   return 0;
 }

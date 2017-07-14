@@ -8,10 +8,12 @@ MAIN_FILE     := src/main.cc
 #--------------------- External Libraries -------------------------------------#
 HEADER_DIRS   := \
 	../libprim/inc \
-	../libdes/inc
+	../libdes/inc \
+	../librnd/inc
 STATIC_LIBS   := \
 	../libprim/bld/libprim.a \
-	../libdes/bld/libdes.a
+	../libdes/bld/libdes.a \
+	../librnd/bld/librnd.a
 
 #--------------------- Cpp Lint -----------------------------------------------#
 LINT          := $(HOME)/.makeccpp/cpplint/cpplint.py
