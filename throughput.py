@@ -73,6 +73,7 @@ def main():
         task.add_condition(taskrun.FileModificationCondition(
           [], [filename]))
 
+  tm.randomize()
   tm.run_tasks()
 
   # gather all data
