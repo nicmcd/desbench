@@ -38,8 +38,8 @@ namespace example {
 
 SimpleComponent::SimpleComponent(
     des::Simulator* _simulator, const std::string& _name,
-    const des::Component* _parent, u64 _id, bool _shiftyEpsilon, bool _verbose)
-    : BenchComponent(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
+    u64 _id, bool _shiftyEpsilon, bool _verbose)
+    : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
       evt_(this, static_cast<des::EventHandler>(&SimpleComponent::handler)) {
   s32 na = evt_.a + 1;
   s32 nb = evt_.b + 1;

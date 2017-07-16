@@ -45,8 +45,7 @@ namespace example {
 class EmptyComponent : public BenchComponent {
  public:
   EmptyComponent(des::Simulator* _simulator, const std::string& _name,
-                 const des::Component* _parent, u64 _id, bool _shiftyEpsilon,
-                 bool _verbose);
+                 u64 _id, bool _shiftyEpsilon, bool _verbose);
   ~EmptyComponent();
   void function();
 

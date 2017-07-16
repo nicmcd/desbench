@@ -38,9 +38,8 @@ namespace example {
 
 MixComponent::MixComponent(
     des::Simulator* _simulator, const std::string& _name,
-    const des::Component* _parent, u64 _id, bool _shiftyEpsilon, u64 _others,
-    bool _verbose)
-    : BenchComponent(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
+    u64 _id, bool _shiftyEpsilon, u64 _others, bool _verbose)
+    : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
       others_(_others) {
   // initialize my event
   evts_.push_back(new Event(this, static_cast<des::EventHandler>(

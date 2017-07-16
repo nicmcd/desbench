@@ -47,8 +47,7 @@ namespace example {
 class MixComponent : public BenchComponent {
  public:
   MixComponent(des::Simulator* _simulator, const std::string& _name,
-               const des::Component* _parent, u64 _id, bool _shiftyEpsilon,
-               u64 _others, bool _verbose);
+               u64 _id, bool _shiftyEpsilon, u64 _others, bool _verbose);
   ~MixComponent();
   void function();
 

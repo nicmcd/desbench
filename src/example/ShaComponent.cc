@@ -46,9 +46,8 @@ static const u64 MAX_HASH_SIZE = std::max(SHA_DIGEST_LENGTH,
 
 ShaComponent::ShaComponent(
     des::Simulator* _simulator, const std::string& _name,
-    const des::Component* _parent, u64 _id, bool _shiftyEpsilon, u64 _shaBits,
-    bool _verbose)
-    : BenchComponent(_simulator, _name, _parent, _id, _shiftyEpsilon, _verbose),
+    u64 _id, bool _shiftyEpsilon, u64 _shaBits, bool _verbose)
+    : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
       shaBits_(_shaBits),
       evt_(this, static_cast<des::EventHandler>(&ShaComponent::handler)) {
   hash_ = new unsigned char[MAX_HASH_SIZE];
@@ -86,16 +85,16 @@ void ShaComponent::handler(des::Event* _event) {
   if (run_) {
     switch (shaBits_) {
       case 1:
-        SHA1(reinterpret_cast<const u8*>(baseName().c_str()),
-             baseName().size(), hash_);
+        SHA1(reinterpret_cast<const u8*>(basename().c_str()),
+             basename().size(), hash_);
         break;
       case 256:
-        SHA256(reinterpret_cast<const u8*>(baseName().c_str()),
-               baseName().size(), hash_);
+        SHA256(reinterpret_cast<const u8*>(basename().c_str()),
+               basename().size(), hash_);
         break;
       case 512:
-        SHA512(reinterpret_cast<const u8*>(baseName().c_str()),
-               baseName().size(), hash_);
+        SHA512(reinterpret_cast<const u8*>(basename().c_str()),
+               basename().size(), hash_);
         break;
       default:
         assert(false);

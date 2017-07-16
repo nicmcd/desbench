@@ -44,8 +44,7 @@ namespace example {
 class BenchComponent : public des::Component {
  public:
   BenchComponent(des::Simulator* _simulator, const std::string& _name,
-                 const des::Component* _parent, u64 _id, bool _shiftyEpsilon,
-                 bool _verbose);
+                 u64 _id, bool _shiftyEpsilon, bool _verbose);
   ~BenchComponent();
   void kill();
   void allComponents(std::vector<BenchComponent*>* _allComponents);

@@ -67,24 +67,24 @@ example::BenchComponent* createComponent(
     u64 _generic) {
   if (_type == "empty") {
     return new example::EmptyComponent(
-        _sim, _name, nullptr, _id, _shiftyEpsilon, _verbose);
+        _sim, _name, _id, _shiftyEpsilon, _verbose);
   } else if (_type == "mem") {
     if (_generic < _numComponents) {
       fprintf(stderr, "ERROR: mem component requires a larger memory usage\n");
       exit(-1);
     }
     return new example::MemoryComponent(
-        _sim, _name, nullptr, _id, _shiftyEpsilon,
+        _sim, _name, _id, _shiftyEpsilon,
         _generic / _numComponents, _verbose);
   } else if (_type == "mix") {
     return new example::MixComponent(
-        _sim, _name, nullptr, _id, _shiftyEpsilon, _generic, _verbose);
+        _sim, _name, _id, _shiftyEpsilon, _generic, _verbose);
   } else if (_type == "sha") {
     return new example::ShaComponent(
-        _sim, _name, nullptr, _id, _shiftyEpsilon, _generic, _verbose);
+        _sim, _name, _id, _shiftyEpsilon, _generic, _verbose);
   } else if (_type == "simple") {
     return new example::SimpleComponent(
-        _sim, _name, nullptr, _id, _shiftyEpsilon, _verbose);
+        _sim, _name, _id, _shiftyEpsilon, _verbose);
   } else {
     fprintf(stderr, "invalid component type: %s\n", _type.c_str());
     exit(-1);

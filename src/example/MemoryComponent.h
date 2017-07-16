@@ -46,8 +46,7 @@ namespace example {
 class MemoryComponent : public BenchComponent {
  public:
   MemoryComponent(des::Simulator* _simulator, const std::string& _name,
-                  const des::Component* _parent, u64 _id, bool _shiftyEpsilon,
-                  u64 _bytes, bool _verbose);
+                  u64 _id, bool _shiftyEpsilon, u64 _bytes, bool _verbose);
   ~MemoryComponent();
   void function();
 

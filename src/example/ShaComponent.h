@@ -45,8 +45,7 @@ namespace example {
 class ShaComponent : public BenchComponent {
  public:
   ShaComponent(des::Simulator* _simulator, const std::string& _name,
-               const des::Component* _parent, u64 _id, bool _shiftyEpsilon,
-               u64 _shaBits, bool _verbose);
+               u64 _id, bool _shiftyEpsilon, u64 _shaBits, bool _verbose);
   ~ShaComponent();
   void function();
 
