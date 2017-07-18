@@ -42,6 +42,7 @@ def main():
   RUNS = args.runs
   MODELS = {
     'empty':   ['empty',  0],
+    'new':     ['new',    0],
     'simple':  ['simple', 0],
     'sha1':    ['sha',    1],
     'sha256':  ['sha',    256],

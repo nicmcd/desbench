@@ -47,6 +47,7 @@
 #include "example/EmptyComponent.h"
 #include "example/MemoryComponent.h"
 #include "example/MixComponent.h"
+#include "example/NewDeleteComponent.h"
 #include "example/ShaComponent.h"
 #include "example/SimpleComponent.h"
 
@@ -79,6 +80,9 @@ example::BenchComponent* createComponent(
   } else if (_type == "mix") {
     return new example::MixComponent(
         _sim, _name, _id, _shiftyEpsilon, _generic, _verbose);
+  } else if (_type == "new") {
+    return new example::NewDeleteComponent(
+        _sim, _name, _id, _shiftyEpsilon, _verbose);
   } else if (_type == "sha") {
     return new example::ShaComponent(
         _sim, _name, _id, _shiftyEpsilon, _generic, _verbose);
