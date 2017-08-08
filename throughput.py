@@ -6,6 +6,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy
 import os
+import pprint
+import re
 import taskrun
 
 def main():
@@ -22,6 +24,10 @@ def main():
                   help="arguments for numactl");
   ap.add_argument('-v', '--verbose', action='store_true',
                   help="show task descriptions");
+  ap.add_argument('-m', '--models', default=".",
+                  help="regex to select models")
+  ap.add_argument('-l', '--list', action='store_true',
+                  help='list models then exit')
   args = ap.parse_args();
 
   if not os.path.isdir(args.odir):
@@ -58,7 +64,21 @@ def main():
     'mix100':  ['mix',    100],
     'mix1000': ['mix',    1000],
     'bounce1': ['bounce', 1],
+    'bounce2': ['bounce', 2],
+    'bounce3': ['bounce', 3],
+    'bounce4': ['bounce', 4],
+    'bounce5': ['bounce', 5],
   }
+
+  # filter MODELS based on args.model regex specifier
+  regex = re.compile(args.models)
+  MODELS = {k:v for k,v in MODELS.items() if re.search(regex, k)}
+
+  # list models then exit if args.list is true
+  if args.list:
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(MODELS)
+    exit(0)
 
   for model in sorted(MODELS):
     for cpus in CPUS:
