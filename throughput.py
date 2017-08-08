@@ -56,7 +56,8 @@ def main():
     'mix1':    ['mix',    1],
     'mix10':   ['mix',    10],
     'mix100':  ['mix',    100],
-    'mix1000': ['mix',    1000]
+    'mix1000': ['mix',    1000],
+    'bounce1': ['bounce', 1],
   }
 
   for model in sorted(MODELS):

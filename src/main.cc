@@ -44,6 +44,7 @@
 #include <vector>
 
 #include "example/BenchComponent.h"
+#include "example/BounceComponent.h"
 #include "example/EmptyComponent.h"
 #include "example/MemoryComponent.h"
 #include "example/MixComponent.h"
@@ -66,7 +67,10 @@ example::BenchComponent* createComponent(
     const std::string& _type, des::Simulator* _sim, const std::string& _name,
     u64 _id, bool _shiftyEpsilon, bool _verbose, u32 _numComponents,
     u64 _generic) {
-  if (_type == "empty") {
+  if (_type == "bounce") {
+    return new example::BounceComponent(
+        _sim, _name, _id, _shiftyEpsilon, _generic, _verbose);
+  } else if (_type == "empty") {
     return new example::EmptyComponent(
         _sim, _name, _id, _shiftyEpsilon, _verbose);
   } else if (_type == "mem") {
@@ -134,6 +138,10 @@ void test(
 
   for (u32 id = 0; id < _numComponents; id++) {
     components.at(id)->allComponents(&components);
+  }
+
+  for (u32 id = 0; id < _numComponents; id++) {
+    components.at(id)->init();
   }
 
   sim->debugCheck();

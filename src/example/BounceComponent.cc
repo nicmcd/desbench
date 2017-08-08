@@ -28,7 +28,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/MixComponent.h"
+#include "example/BounceComponent.h"
 
 #include <cassert>
 #include <cstdio>
@@ -36,83 +36,51 @@
 
 namespace example {
 
-MixComponent::MixComponent(
+BounceComponent::BounceComponent(
     des::Simulator* _simulator, const std::string& _name,
-    u64 _id, bool _shiftyEpsilon, u64 _others, bool _verbose)
+    u64 _id, bool _shiftyEpsilon, u64 _events, bool _verbose)
     : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
-      others_(_others) {
-  // initialize my event
-  evts_.push_back(new Event(this, static_cast<des::EventHandler>(
-      &MixComponent::handleMine)));
-
-  // initialize others' events
-  for (u32 evt = 0; evt < others_; evt++) {
-    for (u32 epoch = 0; epoch < 2; epoch++) {
-      Event* e = new Event(nullptr, static_cast<des::EventHandler>(
-          &MixComponent::handleOthers));
-      evts_.push_back(e);
-    }
-  }
-
-  // start on epoch 0 (false)
-  epoch_ = false;
+      events_(_events) {
+  assert(_events > 0);
 
   // give the random generator a seed
   rnd_.seed(id_);
-
-  // queue first event
-  function();
 }
 
-MixComponent::~MixComponent() {
+BounceComponent::~BounceComponent() {
   for (Event* e : evts_) {
     delete e;
   }
 }
 
-MixComponent::Event::Event(des::Component* _component,
-                           des::EventHandler _handler)
+BounceComponent::Event::Event(des::Component* _component,
+                              des::EventHandler _handler)
     : des::Event(_component, _handler) {}
 
-void MixComponent::function() {
-  // *** generate an event for me
-  evts_.at(0)->time = simulator->time() + 1;
-  if (shiftyEpsilon_) {
-    evts_.at(0)->time.setEpsilon((id_ + count_) % des::EPSILON_INV);
-  } else {
-    evts_.at(0)->time.setEpsilon(0);
-  }
-  simulator->addEvent(evts_.at(0));
-
-  // *** add 'others_' events to randomly selected components
-  if (numComponents_ > 0) {
-    for (u64 other = 0; other < others_; other++) {
-      Event* evt = evts_.at(other + 1 + (epoch_ * others_));
-
-      // set other component
+void BounceComponent::init() {
+  // if id is 0 initialize events
+  if (id_ == 0) {
+    evts_.resize(events_, nullptr);
+    for (u64 e = 0; e < events_; e++) {
+      // make a random event
       u64 otherId = rnd_() % numComponents_;
-      evt->component = allComponents_->at(otherId);
 
-      // set time and epsilon
-      evt->time = simulator->time() + 1;
-      if (shiftyEpsilon_) {
-        evt->time.setEpsilon((id_ + count_) % des::EPSILON_INV);
-      } else {
-        evt->time.setEpsilon(0);
-      }
+      Event* evt = new Event(allComponents_->at(otherId),
+                             static_cast<des::EventHandler>(
+                                 &BounceComponent::handle));
+      evt->time = 0;
 
-      // add event
+      // add to vector
+      evts_.push_back(evt);
+
+      // enqueue
       simulator->addEvent(evt);
     }
   }
-
-  // switch the epoch
-  epoch_ = !epoch_;
 }
 
-void MixComponent::handleMine(des::Event* _event) {
+void BounceComponent::handle(des::Event* _event) {
   Event* me = reinterpret_cast<Event*>(_event);
-  (void)me;  // unused
 
   count_++;
   if (verbose_ || count_ < 5) {
@@ -120,16 +88,20 @@ void MixComponent::handleMine(des::Event* _event) {
   }
 
   if (run_) {
-    function();  // queue another event
-  }
-}
+    // set new random component
+    u64 otherId = rnd_() % numComponents_;
+    me->component = allComponents_->at(otherId);
 
-void MixComponent::handleOthers(des::Event* _event) {
-  Event* me = reinterpret_cast<Event*>(_event);
-  (void)me;  // unused
+    // set new time
+    me->time = simulator->time() + 1;
+    if (shiftyEpsilon_) {
+      me->time.setEpsilon((id_ + count_) % des::EPSILON_INV);
+    } else {
+      me->time.setEpsilon(0);
+    }
 
-  if (verbose_ || count_ < 5) {
-    dlogf("hello world, from component #%lu, count %lu (others)", id_, count_);
+    // enqueue
+    simulator->addEvent(me);
   }
 }
 

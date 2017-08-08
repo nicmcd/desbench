@@ -28,39 +28,42 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_BENCHCOMPONENT_H_
-#define EXAMPLE_BENCHCOMPONENT_H_
+#ifndef EXAMPLE_BOUNCECOMPONENT_H_
+#define EXAMPLE_BOUNCECOMPONENT_H_
 
 #include <des/Event.h>
 #include <des/Component.h>
 #include <des/Simulator.h>
 #include <prim/prim.h>
 
+#include <random>
 #include <string>
 #include <vector>
 
+#include "example/BenchComponent.h"
+
 namespace example {
 
-class BenchComponent : public des::Component {
+class BounceComponent : public BenchComponent {
  public:
-  BenchComponent(des::Simulator* _simulator, const std::string& _name,
-                 u64 _id, bool _shiftyEpsilon, bool _verbose);
-  ~BenchComponent();
-  void kill();
-  void allComponents(std::vector<BenchComponent*>* _allComponents);
+  BounceComponent(des::Simulator* _simulator, const std::string& _name,
+                  u64 _id, bool _shiftyEpsilon, u64 _events, bool _verbose);
+  ~BounceComponent();
+  void init() override;
 
-  virtual void init();
+ private:
+  class Event : public des::Event {
+   public:
+    Event(des::Component* _component, des::EventHandler _handler);
+  };
 
- protected:
-  u64 id_;
-  u64 count_;
-  bool run_;
-  bool shiftyEpsilon_;
-  bool verbose_;
-  u64 numComponents_;
-  std::vector<BenchComponent*>* allComponents_;
+  void handle(des::Event* _event);
+
+  u64 events_;
+  std::mt19937_64 rnd_;
+  std::vector<Event*> evts_;
 };
 
 }  // namespace example
 
-#endif  // EXAMPLE_BENCHCOMPONENT_H_
+#endif  // EXAMPLE_BOUNCECOMPONENT_H_

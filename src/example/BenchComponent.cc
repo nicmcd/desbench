@@ -55,4 +55,6 @@ void BenchComponent::allComponents(
   allComponents_ = _allComponents;
 }
 
+void BenchComponent::init() {}
+
 }  // namespace example

@@ -64,7 +64,6 @@ class MixComponent : public BenchComponent {
   std::mt19937_64 rnd_;
   bool epoch_;
   std::vector<Event*> evts_;
-  u64 sum_;
 };
 
 }  // namespace example
