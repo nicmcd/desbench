@@ -148,6 +148,8 @@ void test(
 
   std::thread killer(executionTimer, &components, _executionTime);
 
+  printf("initializing components...\n");
+  sim->initialize();
   printf("simulation beginning...\n");
   sim->simulate();
 
