@@ -116,7 +116,8 @@ void test(
     exit(-1);
   }
 
-  des::Simulator* sim = new des::Simulator(_numThreads, mapper);
+  des::Simulator* sim = new des::Simulator(_numThreads);
+  sim->setMapper(mapper);
   des::Logger* log = new des::Logger("-");
   sim->setLogger(log);
   des::BasicObserver* ob = new des::BasicObserver(log, true, true);
