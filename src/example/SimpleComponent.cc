@@ -49,7 +49,7 @@ SimpleComponent::SimpleComponent(
 
 SimpleComponent::~SimpleComponent() {}
 
-SimpleComponent::Event::Event(des::Component* _component,
+SimpleComponent::Event::Event(des::ActiveComponent* _component,
                               des::EventHandler _handler)
     : des::Event(_component, _handler), a(0), b(0), c(0) {}
 

@@ -39,7 +39,7 @@ namespace example {
 BenchComponent::BenchComponent(
     des::Simulator* _simulator, const std::string& _name, u64 _id,
     bool _shiftyEpsilon, bool _verbose)
-    : des::Component(_simulator, _name), id_(_id), count_(0),
+    : des::ActiveComponent(_simulator, _name), id_(_id), count_(0),
       run_(true), shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose),
       numComponents_(0), allComponents_(nullptr) {}
 

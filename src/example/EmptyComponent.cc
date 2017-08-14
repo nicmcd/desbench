@@ -46,7 +46,7 @@ EmptyComponent::EmptyComponent(
 
 EmptyComponent::~EmptyComponent() {}
 
-EmptyComponent::Event::Event(des::Component* _component,
+EmptyComponent::Event::Event(des::ActiveComponent* _component,
                              des::EventHandler _handler)
     : des::Event(_component, _handler) {}
 

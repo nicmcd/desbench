@@ -59,7 +59,7 @@ ShaComponent::~ShaComponent() {
   delete[] hash_;
 }
 
-ShaComponent::Event::Event(des::Component* _component,
+ShaComponent::Event::Event(des::ActiveComponent* _component,
                            des::EventHandler _handler)
     : des::Event(_component, _handler) {}
 

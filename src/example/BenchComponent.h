@@ -31,9 +31,7 @@
 #ifndef EXAMPLE_BENCHCOMPONENT_H_
 #define EXAMPLE_BENCHCOMPONENT_H_
 
-#include <des/Event.h>
-#include <des/Component.h>
-#include <des/Simulator.h>
+#include <des/des.h>
 #include <prim/prim.h>
 
 #include <string>
@@ -41,7 +39,7 @@
 
 namespace example {
 
-class BenchComponent : public des::Component {
+class BenchComponent : public des::ActiveComponent {
  public:
   BenchComponent(des::Simulator* _simulator, const std::string& _name,
                  u64 _id, bool _shiftyEpsilon, bool _verbose);

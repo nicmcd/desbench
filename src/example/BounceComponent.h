@@ -31,9 +31,7 @@
 #ifndef EXAMPLE_BOUNCECOMPONENT_H_
 #define EXAMPLE_BOUNCECOMPONENT_H_
 
-#include <des/Event.h>
-#include <des/Component.h>
-#include <des/Simulator.h>
+#include <des/des.h>
 #include <prim/prim.h>
 
 #include <random>
@@ -54,7 +52,7 @@ class BounceComponent : public BenchComponent {
  private:
   class Event : public des::Event {
    public:
-    Event(des::Component* _component, des::EventHandler _handler);
+    Event(des::ActiveComponent* _component, des::EventHandler _handler);
   };
 
   void handle(des::Event* _event);

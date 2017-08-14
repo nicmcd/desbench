@@ -31,9 +31,7 @@
 #ifndef EXAMPLE_SIMPLECOMPONENT_H_
 #define EXAMPLE_SIMPLECOMPONENT_H_
 
-#include <des/Event.h>
-#include <des/Component.h>
-#include <des/Simulator.h>
+#include <des/des.h>
 #include <prim/prim.h>
 
 #include <string>
@@ -52,7 +50,7 @@ class SimpleComponent : public BenchComponent {
  private:
   class Event : public des::Event {
    public:
-    Event(des::Component* _component, des::EventHandler _handler);
+    Event(des::ActiveComponent* _component, des::EventHandler _handler);
     s32 a;
     s32 b;
     s32 c;

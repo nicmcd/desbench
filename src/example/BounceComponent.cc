@@ -53,7 +53,7 @@ BounceComponent::~BounceComponent() {
   }
 }
 
-BounceComponent::Event::Event(des::Component* _component,
+BounceComponent::Event::Event(des::ActiveComponent* _component,
                               des::EventHandler _handler)
     : des::Event(_component, _handler) {}
 

@@ -45,7 +45,7 @@ NewDeleteComponent::NewDeleteComponent(
 
 NewDeleteComponent::~NewDeleteComponent() {}
 
-NewDeleteComponent::Event::Event(des::Component* _component,
+NewDeleteComponent::Event::Event(des::ActiveComponent* _component,
                              des::EventHandler _handler)
     : des::Event(_component, _handler) {}
 

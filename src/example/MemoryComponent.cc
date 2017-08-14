@@ -60,7 +60,7 @@ MemoryComponent::~MemoryComponent() {
   delete[] mem_;
 }
 
-MemoryComponent::Event::Event(des::Component* _component,
+MemoryComponent::Event::Event(des::ActiveComponent* _component,
                               des::EventHandler _handler)
     : des::Event(_component, _handler), index(0) {}
 

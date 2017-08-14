@@ -31,9 +31,7 @@
 #ifndef EXAMPLE_EMPTYCOMPONENT_H_
 #define EXAMPLE_EMPTYCOMPONENT_H_
 
-#include <des/Event.h>
-#include <des/Component.h>
-#include <des/Simulator.h>
+#include <des/des.h>
 #include <prim/prim.h>
 
 #include <string>
@@ -52,7 +50,7 @@ class EmptyComponent : public BenchComponent {
  private:
   class Event : public des::Event {
    public:
-    Event(des::Component* _component, des::EventHandler _handler);
+    Event(des::ActiveComponent* _component, des::EventHandler _handler);
   };
 
   void handler(des::Event* _event);

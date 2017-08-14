@@ -70,7 +70,7 @@ MixComponent::~MixComponent() {
   }
 }
 
-MixComponent::Event::Event(des::Component* _component,
+MixComponent::Event::Event(des::ActiveComponent* _component,
                            des::EventHandler _handler)
     : des::Event(_component, _handler) {}
 
