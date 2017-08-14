@@ -51,6 +51,7 @@
 #include "example/NewDeleteComponent.h"
 #include "example/ShaComponent.h"
 #include "example/SimpleComponent.h"
+#include "example/PHoldComponent.h"
 
 void executionTimer(std::vector<example::BenchComponent*>* _components,
                     u64 _executionTime) {
@@ -93,6 +94,9 @@ example::BenchComponent* createComponent(
   } else if (_type == "simple") {
     return new example::SimpleComponent(
         _sim, _name, _id, _shiftyEpsilon, _verbose);
+  } else if (_type == "phold") {
+    return new example::PHoldComponent(
+        _sim, _name, _id, _shiftyEpsilon, _generic, _verbose);
   } else {
     fprintf(stderr, "invalid component type: %s\n", _type.c_str());
     exit(-1);
@@ -216,7 +220,9 @@ s32 main(s32 _argc, char** _argv) {
          "shifty=%d verbose=%d generic=%lu\n",
          threads, mapping.c_str(), components, componentType.c_str(),
          executionTime, shiftyEpsilon, verbose, generic);
+
   test(threads, mapping, components, componentType, executionTime,
        shiftyEpsilon, verbose, generic);
+
   return 0;
 }
