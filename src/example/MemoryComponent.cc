@@ -41,7 +41,7 @@ MemoryComponent::MemoryComponent(
     u64 _id, bool _shiftyEpsilon, u64 _bytes, bool _verbose)
     : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
       bytes_(_bytes),
-      evt_(this, static_cast<des::EventHandler>(&MemoryComponent::handler)) {
+      evt_(this, makeHandler(MemoryComponent, handler)) {
   // give the random generator a seed
   rnd_.seed(id_);
 

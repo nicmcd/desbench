@@ -42,14 +42,12 @@ MixComponent::MixComponent(
     : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
       others_(_others) {
   // initialize my event
-  evts_.push_back(new Event(this, static_cast<des::EventHandler>(
-      &MixComponent::handleMine)));
+  evts_.push_back(new Event(this, makeHandler(MixComponent, handleMine)));
 
   // initialize others' events
   for (u32 evt = 0; evt < others_; evt++) {
     for (u32 epoch = 0; epoch < 2; epoch++) {
-      Event* e = new Event(nullptr, static_cast<des::EventHandler>(
-          &MixComponent::handleOthers));
+      Event* e = new Event(nullptr, makeHandler(MixComponent, handleOthers));
       evts_.push_back(e);
     }
   }

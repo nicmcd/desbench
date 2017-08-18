@@ -49,7 +49,7 @@ ShaComponent::ShaComponent(
     u64 _id, bool _shiftyEpsilon, u64 _shaBits, bool _verbose)
     : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
       shaBits_(_shaBits),
-      evt_(this, static_cast<des::EventHandler>(&ShaComponent::handler)) {
+      evt_(this, makeHandler(ShaComponent, handler)) {
   hash_ = new unsigned char[MAX_HASH_SIZE];
 
   function();  // queue first event

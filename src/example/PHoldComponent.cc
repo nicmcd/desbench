@@ -47,8 +47,7 @@ PHoldComponent::PHoldComponent(
   numInitialEvts_ = 10;
 
   for (u32 evt = 0; evt < numInitialEvts_; evt++) {
-    Event *e = new Event(this, static_cast<des::EventHandler>(
-        &PHoldComponent::handler));
+    Event *e = new Event(this, makeHandler(PHoldComponent, handler));
     evts_.push_back(e);
   }
 

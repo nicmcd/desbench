@@ -51,7 +51,7 @@ NewDeleteComponent::Event::Event(des::ActiveComponent* _component,
 
 void NewDeleteComponent::function() {
   NewDeleteComponent::Event* evt = new NewDeleteComponent::Event(
-      this, static_cast<des::EventHandler>(&NewDeleteComponent::handler));
+      this, makeHandler(NewDeleteComponent, handler));
   evt->time = simulator->time() + 1;
   if (shiftyEpsilon_) {
     evt->time.setEpsilon((id_ + count_) % des::EPSILON_INV);

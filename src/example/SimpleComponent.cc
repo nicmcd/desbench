@@ -40,7 +40,7 @@ SimpleComponent::SimpleComponent(
     des::Simulator* _simulator, const std::string& _name,
     u64 _id, bool _shiftyEpsilon, bool _verbose)
     : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
-      evt_(this, static_cast<des::EventHandler>(&SimpleComponent::handler)) {
+      evt_(this, makeHandler(SimpleComponent, handler)) {
   s32 na = evt_.a + 1;
   s32 nb = evt_.b + 1;
   s32 nc = evt_.c + 1;

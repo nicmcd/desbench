@@ -40,7 +40,7 @@ EmptyComponent::EmptyComponent(
     des::Simulator* _simulator, const std::string& _name,
     u64 _id, bool _shiftyEpsilon, bool _verbose)
     : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
-      evt_(this, static_cast<des::EventHandler>(&EmptyComponent::handler)) {
+      evt_(this, makeHandler(EmptyComponent, handler)) {
   function();  // queue first event
 }
 

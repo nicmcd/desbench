@@ -66,8 +66,7 @@ void BounceComponent::init() {
       u64 otherId = rnd_() % numComponents_;
 
       Event* evt = new Event(allComponents_->at(otherId),
-                             static_cast<des::EventHandler>(
-                                 &BounceComponent::handle));
+                             makeHandler(BounceComponent, handle));
       evt->time = 0;
 
       // add to vector
