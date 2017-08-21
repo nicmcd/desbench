@@ -149,7 +149,7 @@ void test(
     components.at(id)->init();
   }
 
-  sim->debugCheck();
+  sim->debugNameCheck();
 
   std::thread killer(executionTimer, &components, _executionTime);
 
