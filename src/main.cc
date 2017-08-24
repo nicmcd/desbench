@@ -124,7 +124,7 @@ void test(
   sim->setMapper(mapper);
   des::Logger* log = new des::Logger("-");
   sim->setLogger(log);
-  des::BasicObserver* ob = new des::BasicObserver(log, true, true);
+  des::BasicObserver* ob = new des::BasicObserver(log, true);
   sim->addObserver(ob);
 
   if (_verbose) {
