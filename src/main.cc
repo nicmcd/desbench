@@ -38,8 +38,8 @@
 
 #include <cmath>
 
-#include <chrono>
-#include <thread>
+#include <chrono>  // NOLINT
+#include <thread>  // NOLINT
 #include <tuple>
 #include <vector>
 
