@@ -19,9 +19,9 @@ COPTS = [
 ]
 
 LIBS = [
-  "@libprim//:lib",
-  "@librnd//:lib",
-  "@libdes//:lib",
+  "@libprim//:prim",
+  "@librnd//:rnd",
+  "@libdes//:des",
   "@boringssl//:crypto",
 ]
 
@@ -51,7 +51,7 @@ cc_library(
 )
 
 cc_binary(
-  name = "bin",
+  name = "desbench",
   srcs = ["src/main.cc"],
   includes = [
     "src",
@@ -83,7 +83,7 @@ cc_library(
 )
 
 cc_test(
-  name = "test",
+  name = "desbench_test",
   copts = COPTS,
   deps = [
     ":test_lib",
