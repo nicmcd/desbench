@@ -62,7 +62,7 @@ void EmptyComponent::function() {
 
 void EmptyComponent::handler(des::Event* _event) {
   Event* me = reinterpret_cast<Event*>(_event);
-  (void)me;
+  (void)me;  // unused
 
   count_++;
   if (verbose_ || count_ < 5) {
