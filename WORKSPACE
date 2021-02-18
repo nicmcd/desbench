@@ -41,7 +41,7 @@ http_archive(
   strip_prefix = "google-boringssl-" + hash,
 )
 
-hash = "6b56ef3"
+hash = "2b65641"
 http_archive(
   name = "libprim",
   urls = ["https://github.com/nicmcd/libprim/tarball/" + hash],
@@ -49,7 +49,7 @@ http_archive(
   strip_prefix = "nicmcd-libprim-" + hash,
 )
 
-hash = "55db323"
+hash = "cc7075f"
 http_archive(
   name = "librnd",
   urls = ["https://github.com/nicmcd/librnd/tarball/" + hash],
@@ -57,7 +57,7 @@ http_archive(
   strip_prefix = "nicmcd-librnd-" + hash,
 )
 
-hash = "0ae5206"
+hash = "3a6def3"
 http_archive(
   name = "libdes",
   urls = ["https://github.com/nicmcd/libdes/tarball/" + hash],
