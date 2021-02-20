@@ -45,20 +45,14 @@ class SimpleComponent : public BenchComponent {
   SimpleComponent(des::Simulator* _simulator, const std::string& _name,
                   u64 _id, bool _shiftyEpsilon, bool _verbose);
   ~SimpleComponent();
-  void function(s32 _a, s32 _b, s32 _c);
 
  private:
-  class Event : public des::Event {
-   public:
-    Event(des::ActiveComponent* _component, des::EventHandler _handler);
-    s32 a;
-    s32 b;
-    s32 c;
-  };
+  void handler(s32 _a, f64 _b, u16 _c);
+  void nextEvent();
 
-  void handler(des::Event* _event);
-
-  Event evt_;
+  f64 sum_;
+  std::function<void(s32, f64, u16)> func_;
+  des::Event evt_;
 };
 
 }  // namespace example

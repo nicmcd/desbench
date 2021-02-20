@@ -40,17 +40,22 @@ EmptyComponent::EmptyComponent(
     des::Simulator* _simulator, const std::string& _name,
     u64 _id, bool _shiftyEpsilon, bool _verbose)
     : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
-      evt_(this, makeHandler(EmptyComponent, handler)) {
-  function();  // queue first event
+      evt_(this, std::bind(&EmptyComponent::handler, this)) {
+  handler();  // queue first event
 }
 
-EmptyComponent::~EmptyComponent() {}
+void EmptyComponent::handler() {
+  count_++;
+  if (verbose_ || count_ < 5) {
+    dlogf("hello world, from component #%lu, count %lu", id_, count_);
+  }
 
-EmptyComponent::Event::Event(des::ActiveComponent* _component,
-                             des::EventHandler _handler)
-    : des::Event(_component, _handler) {}
+  if (run_) {
+    nextEvent();
+  }
+}
 
-void EmptyComponent::function() {
+void EmptyComponent::nextEvent() {
   evt_.time = simulator->time() + 1;
   if (shiftyEpsilon_) {
     evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
@@ -58,20 +63,6 @@ void EmptyComponent::function() {
     evt_.time.setEpsilon(0);
   }
   simulator->addEvent(&evt_);
-}
-
-void EmptyComponent::handler(des::Event* _event) {
-  Event* me = reinterpret_cast<Event*>(_event);
-  (void)me;  // unused
-
-  count_++;
-  if (verbose_ || count_ < 5) {
-    dlogf("hello world, from component #%lu, count %lu", id_, count_);
-  }
-
-  if (run_) {
-    function();  // queue another event
-  }
 }
 
 }  // namespace example

@@ -39,19 +39,18 @@
 #include <cmath>
 
 #include <chrono>  // NOLINT
+#include <functional>
 #include <thread>  // NOLINT
 #include <tuple>
 #include <vector>
 
 #include "example/BenchComponent.h"
-#include "example/BounceComponent.h"
 #include "example/EmptyComponent.h"
 #include "example/MemoryComponent.h"
-#include "example/MixComponent.h"
-#include "example/NewDeleteComponent.h"
-#include "example/ShaComponent.h"
-#include "example/SimpleComponent.h"
 #include "example/PHoldComponent.h"
+#include "example/SimpleComponent.h"
+#include "example/ShaComponent.h"
+
 
 void executionTimer(std::vector<example::BenchComponent*>* _components,
                     u64 _executionTime) {
@@ -68,10 +67,7 @@ example::BenchComponent* createComponent(
     const std::string& _type, des::Simulator* _sim, const std::string& _name,
     u64 _id, bool _shiftyEpsilon, bool _verbose, u32 _numComponents,
     u64 _generic) {
-  if (_type == "bounce") {
-    return new example::BounceComponent(
-        _sim, _name, _id, _shiftyEpsilon, _generic, _verbose);
-  } else if (_type == "empty") {
+  if (_type == "empty") {
     return new example::EmptyComponent(
         _sim, _name, _id, _shiftyEpsilon, _verbose);
   } else if (_type == "mem") {
@@ -82,12 +78,6 @@ example::BenchComponent* createComponent(
     return new example::MemoryComponent(
         _sim, _name, _id, _shiftyEpsilon,
         _generic / _numComponents, _verbose);
-  } else if (_type == "mix") {
-    return new example::MixComponent(
-        _sim, _name, _id, _shiftyEpsilon, _generic, _verbose);
-  } else if (_type == "new") {
-    return new example::NewDeleteComponent(
-        _sim, _name, _id, _shiftyEpsilon, _verbose);
   } else if (_type == "sha") {
     return new example::ShaComponent(
         _sim, _name, _id, _shiftyEpsilon, _generic, _verbose);
@@ -142,20 +132,13 @@ void test(
   }
 
   for (u32 id = 0; id < _numComponents; id++) {
-    components.at(id)->allComponents(&components);
-  }
-
-  for (u32 id = 0; id < _numComponents; id++) {
-    components.at(id)->init();
+    components.at(id)->setAllComponents(&components);
   }
 
   sim->debugNameCheck();
 
   std::thread killer(executionTimer, &components, _executionTime);
 
-  printf("initializing components...\n");
-  sim->initialize();
-  printf("simulation beginning...\n");
   sim->simulate();
 
   killer.join();

@@ -45,19 +45,14 @@ class ShaComponent : public BenchComponent {
   ShaComponent(des::Simulator* _simulator, const std::string& _name,
                u64 _id, bool _shiftyEpsilon, u64 _shaBits, bool _verbose);
   ~ShaComponent();
-  void function();
 
  private:
-  class Event : public des::Event {
-   public:
-    Event(des::ActiveComponent* _component, des::EventHandler _handler);
-  };
-
-  void handler(des::Event* _event);
+  void handler();
+  void nextEvent();
 
   unsigned char* hash_;
   const u64 shaBits_;
-  Event evt_;
+  des::Event evt_;
 };
 
 }  // namespace example

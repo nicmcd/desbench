@@ -46,69 +46,30 @@ PHoldComponent::PHoldComponent(
   remPercentage_ = static_cast<double>(_remPercentage) / 100.0;
   numInitialEvts_ = 10;
 
-  for (u32 evt = 0; evt < numInitialEvts_; evt++) {
-    Event *e = new Event(this, makeHandler(PHoldComponent, handler));
-    evts_.push_back(e);
-  }
-
-  stagger_ = 0;
-  lookAhead_ = 1.0;
+  stagger_ = false;
+  lookAhead_ = 1;
 
   // start the sum
   sum_ = 0;
 
   // give the random generator a seed
   rnd_.seed(id_);
-
-  // queue initial events
-  init();
 }
 
-PHoldComponent::~PHoldComponent() {
-  for (Event *e : evts_) {
-    delete e;
-  }
-}
-
-PHoldComponent::Event::Event(des::ActiveComponent *_component,
-                             des::EventHandler _handler)
-    : des::Event(_component, _handler) {}
-
-void PHoldComponent::init() {
-  u32 i;
-  for (i = 0; i < numInitialEvts_; i++) {
+void PHoldComponent::initialize() {
+  for (u32 e = 0; e < numInitialEvts_; e++) {
+    des::Time time;
     if (stagger_) {
-      evts_.at(i)->time = simulator->time() + lookAhead_ +
-          (id_ % des::TICK_INV);
+      time = simulator->time() + lookAhead_ + (id_ % des::TICK_INV);
     } else {
-      evts_.at(i)->time = simulator->time() + lookAhead_;
+      time = simulator->time() + lookAhead_;
     }
-    simulator->addEvent(evts_.at(i));
+    simulator->addEvent(new des::Event(
+        this, std::bind(&PHoldComponent::handler, this), time, true));
   }
 }
 
-void PHoldComponent::function(des::Event *_event) {
-  if (rnd_.nextF64() <= remPercentage_) {
-    if (numComponents_ > 0) {
-      // set other component
-      u64 otherId = rnd_.nextU64() % numComponents_;
-      _event->component = allComponents_->at(otherId);
-    }
-  }
-
-  _event->time = simulator->time() + lookAhead_;
-  if (shiftyEpsilon_) {
-    _event->time.setEpsilon((id_ + count_) % des::EPSILON_INV);
-  } else {
-    _event->time.setEpsilon(0);
-  }
-
-  // add event
-  simulator->addEvent(_event);
-}
-
-void PHoldComponent::handler(des::Event *_event) {
-  // Event *me = reinterpret_cast<Event *>(_event);
+void PHoldComponent::handler() {
   count_++;
   if (verbose_ || count_ < 5) {
     dlogf("hello world, from component #%lu, count %lu", id_, count_);
@@ -116,7 +77,21 @@ void PHoldComponent::handler(des::Event *_event) {
 
   sum_++;
   if (run_) {
-    function(_event);  // queue another event
+    PHoldComponent* component = this;
+    if (rnd_.nextF64() <= remPercentage_) {
+      u64 componentId = rnd_.nextU64() % numComponents_;
+      component = static_cast<PHoldComponent*>(allComponents_->at(componentId));
+    }
+    des::Time time = simulator->time() + lookAhead_;
+    if (shiftyEpsilon_) {
+      time.setEpsilon((id_ + count_) % des::EPSILON_INV);
+    } else {
+      time.setEpsilon(0);
+    }
+    simulator->addEvent(new des::Event(
+        component,
+        std::bind(&PHoldComponent::handler, component),
+        time, true));
   }
 }
 

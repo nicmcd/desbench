@@ -31,13 +31,12 @@
 #ifndef EXAMPLE_MEMORYCOMPONENT_H_
 #define EXAMPLE_MEMORYCOMPONENT_H_
 
-#include <des/des.h>
-#include <prim/prim.h>
-
 #include <random>
 #include <string>
 
 #include "example/BenchComponent.h"
+#include "des/des.h"
+#include "prim/prim.h"
 
 namespace example {
 
@@ -46,22 +45,16 @@ class MemoryComponent : public BenchComponent {
   MemoryComponent(des::Simulator* _simulator, const std::string& _name,
                   u64 _id, bool _shiftyEpsilon, u64 _bytes, bool _verbose);
   ~MemoryComponent();
-  void function();
 
  private:
-  class Event : public des::Event {
-   public:
-    Event(des::ActiveComponent* _component, des::EventHandler _handler);
-    u64 index;
-  };
-
-  void handler(des::Event* _event);
+  void handler();
+  void nextEvent();
 
   u64 bytes_;
   u8* mem_;
   std::mt19937_64 rnd_;
   u64 sum_;
-  Event evt_;
+  des::Event evt_;
 };
 
 }  // namespace example

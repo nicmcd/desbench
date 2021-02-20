@@ -49,12 +49,10 @@ void BenchComponent::kill() {
   run_ = false;
 }
 
-void BenchComponent::allComponents(
+void BenchComponent::setAllComponents(
     std::vector<BenchComponent*>* _allComponents) {
   numComponents_ = _allComponents->size();
   allComponents_ = _allComponents;
 }
-
-void BenchComponent::init() {}
 
 }  // namespace example

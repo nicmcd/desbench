@@ -1,6 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
-release = "1.8.1"
+release = "1.10.0"
 http_archive(
   name = "googletest",
   urls = ["https://github.com/google/googletest/archive/release-" + release + ".tar.gz"],
@@ -12,7 +12,7 @@ http_file(
   urls = ["https://raw.githubusercontent.com/nicmcd/pkgbuild/master/cpplint.BUILD"],
 )
 
-release = "1.3.0"
+release = "1.5.4"
 http_archive(
   name = "cpplint",
   urls = ["https://github.com/cpplint/cpplint/archive/" + release + ".tar.gz"],
@@ -57,7 +57,7 @@ http_archive(
   strip_prefix = "nicmcd-librnd-" + hash,
 )
 
-hash = "3a6def3"
+hash = "2b5419b"
 http_archive(
   name = "libdes",
   urls = ["https://github.com/nicmcd/libdes/tarball/" + hash],

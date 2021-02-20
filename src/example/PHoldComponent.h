@@ -36,7 +36,6 @@
 #include <prim/prim.h>
 
 #include <string>
-#include <vector>
 
 #include "example/BenchComponent.h"
 
@@ -48,25 +47,19 @@ class PHoldComponent: public BenchComponent {
   PHoldComponent(des::Simulator *_simulator, const std::string &_name,
                  u64 _id, bool _shiftyEpsilon, u64 _remPercentage,
                  bool _verbose);
-  ~PHoldComponent();
-  void init();
-  void function(des::Event *_event);
+  ~PHoldComponent() = default;
+  void initialize() override;
+  void function();
 
  private:
-  class Event: public des::Event {
-   public:
-    Event(des::ActiveComponent *_component, des::EventHandler _handler);
-  };
+  void handler();
 
-  void handler(des::Event *_event);
-
-  u32 stagger_;
+  bool stagger_;
   u32 numInitialEvts_;
   u64 sum_;
   u64 others_;
-  f64 lookAhead_;
+  des::Time lookAhead_;
   f64 remPercentage_;
-  std::vector<Event *> evts_;
   rnd::Random rnd_;
 };
 

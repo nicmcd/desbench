@@ -41,7 +41,7 @@ MemoryComponent::MemoryComponent(
     u64 _id, bool _shiftyEpsilon, u64 _bytes, bool _verbose)
     : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
       bytes_(_bytes),
-      evt_(this, makeHandler(MemoryComponent, handler)) {
+      evt_(this, std::bind(&MemoryComponent::handler, this)) {
   // give the random generator a seed
   rnd_.seed(id_);
 
@@ -53,41 +53,34 @@ MemoryComponent::MemoryComponent(
   mem_[bytes_ - 1] = (u8)(rnd_() % 256);
 
   // queue first event
-  function();
+  nextEvent();
 }
 
 MemoryComponent::~MemoryComponent() {
   delete[] mem_;
 }
 
-MemoryComponent::Event::Event(des::ActiveComponent* _component,
-                              des::EventHandler _handler)
-    : des::Event(_component, _handler), index(0) {}
+void MemoryComponent::handler() {
+  count_++;
+  if (verbose_ || count_ < 5) {
+    dlogf("hello world, from component #%lu, count %lu", id_, count_);
+  }
 
-void MemoryComponent::function() {
+  sum_ += mem_[rnd_() % bytes_];
+
+  if (run_) {
+    nextEvent();  // queue another event
+  }
+}
+
+void MemoryComponent::nextEvent() {
   evt_.time = simulator->time() + 1;
   if (shiftyEpsilon_) {
     evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
   } else {
     evt_.time.setEpsilon(0);
   }
-  evt_.index = rnd_() % bytes_;
   simulator->addEvent(&evt_);
-}
-
-void MemoryComponent::handler(des::Event* _event) {
-  Event* me = reinterpret_cast<Event*>(_event);
-
-  count_++;
-  if (verbose_ || count_ < 5) {
-    dlogf("hello world, from component #%lu, count %lu", id_, count_);
-  }
-
-  sum_ += mem_[me->index];
-
-  if (run_) {
-    function();  // queue another event
-  }
 }
 
 }  // namespace example

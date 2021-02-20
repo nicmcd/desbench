@@ -44,18 +44,13 @@ class EmptyComponent : public BenchComponent {
  public:
   EmptyComponent(des::Simulator* _simulator, const std::string& _name,
                  u64 _id, bool _shiftyEpsilon, bool _verbose);
-  ~EmptyComponent();
-  void function();
+  ~EmptyComponent() = default;
 
  private:
-  class Event : public des::Event {
-   public:
-    Event(des::ActiveComponent* _component, des::EventHandler _handler);
-  };
+  void handler();
+  void nextEvent();
 
-  void handler(des::Event* _event);
-
-  Event evt_;
+  des::Event evt_;
 };
 
 }  // namespace example

@@ -45,9 +45,7 @@ class BenchComponent : public des::ActiveComponent {
                  u64 _id, bool _shiftyEpsilon, bool _verbose);
   ~BenchComponent();
   void kill();
-  void allComponents(std::vector<BenchComponent*>* _allComponents);
-
-  virtual void init();
+  void setAllComponents(std::vector<BenchComponent*>* _allComponents);
 
  protected:
   u64 id_;

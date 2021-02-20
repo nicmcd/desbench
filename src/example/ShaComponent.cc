@@ -30,13 +30,13 @@
  */
 #include "example/ShaComponent.h"
 
-#include <openssl/sha.h>
-
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 
 #include <algorithm>
+
+#include "openssl/sha.h"
 
 namespace example {
 
@@ -49,34 +49,17 @@ ShaComponent::ShaComponent(
     u64 _id, bool _shiftyEpsilon, u64 _shaBits, bool _verbose)
     : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
       shaBits_(_shaBits),
-      evt_(this, makeHandler(ShaComponent, handler)) {
+      evt_(this, std::bind(&ShaComponent::handler, this)) {
   hash_ = new unsigned char[MAX_HASH_SIZE];
 
-  function();  // queue first event
+  nextEvent();  // queue first event
 }
 
 ShaComponent::~ShaComponent() {
   delete[] hash_;
 }
 
-ShaComponent::Event::Event(des::ActiveComponent* _component,
-                           des::EventHandler _handler)
-    : des::Event(_component, _handler) {}
-
-void ShaComponent::function() {
-  evt_.time = simulator->time() + 1;
-  if (shiftyEpsilon_) {
-    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
-  } else {
-    evt_.time.setEpsilon(0);
-  }
-  simulator->addEvent(&evt_);
-}
-
-void ShaComponent::handler(des::Event* _event) {
-  Event* me = reinterpret_cast<Event*>(_event);
-  (void)me;  // unused
-
+void ShaComponent::handler() {
   count_++;
   if (verbose_ || count_ < 5) {
     dlogf("hello world, from component #%lu, count %lu", id_, count_);
@@ -100,8 +83,18 @@ void ShaComponent::handler(des::Event* _event) {
         assert(false);
     }
 
-    function();  // queue another event
+    nextEvent();  // queue another event
   }
+}
+
+void ShaComponent::nextEvent() {
+  evt_.time = simulator->time() + 1;
+  if (shiftyEpsilon_) {
+    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
+  } else {
+    evt_.time.setEpsilon(0);
+  }
+  simulator->addEvent(&evt_);
 }
 
 }  // namespace example
