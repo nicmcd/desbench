@@ -44,6 +44,8 @@ class EmptyComponent : public BenchComponent {
                  nlohmann::json _settings);
   ~EmptyComponent() override = default;
 
+  void initialize() override;
+
  private:
   void handler();
   void nextEvent();

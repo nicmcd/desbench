@@ -22,6 +22,7 @@
     "num_components": 1000,
     "component": {
       "type": "empty",
+      "initial_events": "$&(/benchmark/num_components)&$",
       "look_ahead": 1,
       "stagger_tick": false,
       "stagger_epsilon": false,

@@ -41,6 +41,7 @@ BenchComponent::BenchComponent(des::Simulator* _simulator,
                                nlohmann::json _settings)
     : des::ActiveComponent(_simulator, _name),
       id_(_id),
+      initial_events_(_settings["initial_events"].get<u64>()),
       look_ahead_(_settings["look_ahead"].get<des::Tick>()),
       stagger_tick_(_settings["stagger_tick"].get<bool>()),
       stagger_epsilon_(_settings["stagger_epsilon"].get<bool>()),
@@ -75,6 +76,15 @@ void BenchComponent::setAllComponents(
     std::vector<BenchComponent*>* _all_components) {
   num_components_ = _all_components->size();
   all_components_ = _all_components;
+}
+
+u64 BenchComponent::initialEvents() {
+  assert(num_components_ > 0);
+  u64 num_events = initial_events_ / num_components_;
+  if (id_ < (initial_events_ % num_components_)) {
+    num_events++;
+  }
+  return num_events;
 }
 
 des::Time BenchComponent::nextTime() {

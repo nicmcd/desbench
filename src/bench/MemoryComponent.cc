@@ -51,14 +51,18 @@ MemoryComponent::MemoryComponent(des::Simulator* _simulator,
     mem_[byte] = (u8)(simulator->random()->nextU64() % U8_MAX);
   }
   mem_[bytes_ - 1] = (u8)(simulator->random()->nextU64() % U8_MAX);
-
-  // Enqueues the first event.
-  simulator->addEvent(new des::Event(
-      this, std::bind(&MemoryComponent::handler, this), des::Time(0), true));
 }
 
 MemoryComponent::~MemoryComponent() {
   delete[] mem_;
+}
+
+void MemoryComponent::initialize() {
+  u64 initial_events = initialEvents();
+  for (u64 e = 0; e < initial_events; e++) {
+    simulator->addEvent(new des::Event(
+        this, std::bind(&MemoryComponent::handler, this), des::Time(0), true));
+  }
 }
 
 void MemoryComponent::handler() {

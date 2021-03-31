@@ -39,10 +39,15 @@
 SimpleComponent::SimpleComponent(des::Simulator* _simulator,
                                  const std::string& _name, u64 _id,
                                  nlohmann::json _settings)
-    : BenchComponent(_simulator, _name, _id, _settings) {
-  simulator->addEvent(new des::Event(
-      this, std::bind(&SimpleComponent::handler, this, -_id, _id, _id),
-      des::Time(0), true));
+    : BenchComponent(_simulator, _name, _id, _settings) {}
+
+void SimpleComponent::initialize() {
+  u64 initial_events = initialEvents();
+  for (u64 e = 0; e < initial_events; e++) {
+    simulator->addEvent(new des::Event(
+        this, std::bind(&SimpleComponent::handler, this, -id_, id_, id_),
+        des::Time(0), true));
+  }
 }
 
 void SimpleComponent::handler(s32 _a, f64 _b, char _c) {

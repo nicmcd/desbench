@@ -44,6 +44,8 @@ class SimpleComponent : public BenchComponent {
                   nlohmann::json _settings);
   ~SimpleComponent() override = default;
 
+  void initialize() override;
+
  private:
   void handler(s32 _a, f64 _b, char _c);
   void nextEvent(s32 _a, f64 _b, char _c);

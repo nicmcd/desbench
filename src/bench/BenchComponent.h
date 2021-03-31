@@ -53,11 +53,13 @@ class BenchComponent : public des::ActiveComponent {
   void setAllComponents(std::vector<BenchComponent*>* _all_components);
 
  protected:
+  u64 initialEvents();
   des::Time nextTime();
   BenchComponent* nextComponent();
 
   const u64 id_;
-  const u64 look_ahead_;
+  const u64 initial_events_;
+  const des::Tick look_ahead_;
   const bool stagger_tick_;
   const bool stagger_epsilon_;
   const f64 remote_probability_;

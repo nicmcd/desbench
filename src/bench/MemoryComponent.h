@@ -44,6 +44,8 @@ class MemoryComponent : public BenchComponent {
                   nlohmann::json _settings);
   ~MemoryComponent() override;
 
+  void initialize() override;
+
  private:
   void handler();
   void nextEvent();

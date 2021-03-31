@@ -39,9 +39,14 @@
 EmptyComponent::EmptyComponent(des::Simulator* _simulator,
                                const std::string& _name, u64 _id,
                                nlohmann::json _settings)
-    : BenchComponent(_simulator, _name, _id, _settings) {
-  simulator->addEvent(new des::Event(
-      this, std::bind(&EmptyComponent::handler, this), des::Time(0), true));
+    : BenchComponent(_simulator, _name, _id, _settings) {}
+
+void EmptyComponent::initialize() {
+  u64 initial_events = initialEvents();
+  for (u64 e = 0; e < initial_events; e++) {
+    simulator->addEvent(new des::Event(
+        this, std::bind(&EmptyComponent::handler, this), des::Time(0), true));
+  }
 }
 
 void EmptyComponent::handler() {
