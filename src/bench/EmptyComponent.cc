@@ -28,35 +28,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_MEMORYCOMPONENT_H_
-#define EXAMPLE_MEMORYCOMPONENT_H_
+#include "bench/EmptyComponent.h"
 
-#include <random>
-#include <string>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 
-#include "example/BenchComponent.h"
-#include "des/des.h"
-#include "prim/prim.h"
+#include "factory/ObjectFactory.h"
 
-namespace example {
+EmptyComponent::EmptyComponent(des::Simulator* _simulator,
+                               const std::string& _name, u64 _id,
+                               nlohmann::json _settings)
+    : BenchComponent(_simulator, _name, _id, _settings) {
+  simulator->addEvent(new des::Event(
+      this, std::bind(&EmptyComponent::handler, this), des::Time(0), true));
+}
 
-class MemoryComponent : public BenchComponent {
- public:
-  MemoryComponent(des::Simulator* _simulator, const std::string& _name,
-                  u64 _id, bool _shiftyEpsilon, u64 _bytes, bool _verbose);
-  ~MemoryComponent();
+void EmptyComponent::handler() {
+  count_++;
+  dlogf("hello world, from component #%lu, count %lu", id_, count_);
 
- private:
-  void handler();
-  void nextEvent();
+  if (run_) {
+    nextEvent();
+  }
+}
 
-  u64 bytes_;
-  u8* mem_;
-  std::mt19937_64 rnd_;
-  u64 sum_;
-  des::Event evt_;
-};
+void EmptyComponent::nextEvent() {
+  EmptyComponent* component =
+      reinterpret_cast<EmptyComponent*>(nextComponent());
+  des::Time time = nextTime();
+  des::Event* event = new des::Event(
+      component, std::bind(&EmptyComponent::handler, this), time, true);
+  simulator->addEvent(event);
+}
 
-}  // namespace example
-
-#endif  // EXAMPLE_MEMORYCOMPONENT_H_
+registerWithObjectFactory("empty", BenchComponent, EmptyComponent, BENCH_ARGS);

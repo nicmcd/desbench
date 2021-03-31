@@ -21,6 +21,24 @@ http_archive(
 )
 
 http_file(
+    name = "nlohmann_json_build",
+    urls = ["https://raw.githubusercontent.com/nicmcd/pkgbuild/master/nlohmannjson.BUILD"],
+)
+
+release = "3.9.1"
+http_archive(
+    name = "nlohmann_json",
+    urls = ["https://github.com/nlohmann/json/archive/v" + release + ".tar.gz"],
+    strip_prefix = "json-" + release,
+    build_file = "@nlohmann_json_build//file:downloaded",
+)
+
+http_file(
+  name = "clang_format",
+  urls = ["https://raw.githubusercontent.com/nicmcd/pkgbuild/master/clang-format"],
+)
+
+http_file(
   name = "zlib_build",
   urls = ["https://raw.githubusercontent.com/nicmcd/pkgbuild/master/zlib.BUILD"],
 )
@@ -33,20 +51,20 @@ http_archive(
   build_file = "@zlib_build//file:downloaded",
 )
 
-hash = "6bdfaba"
-http_archive(
-  name = "boringssl",
-  urls = ["https://github.com/google/boringssl/tarball/" + hash],
-  type = "tar.gz",
-  strip_prefix = "google-boringssl-" + hash,
-)
-
 hash = "2b65641"
 http_archive(
   name = "libprim",
   urls = ["https://github.com/nicmcd/libprim/tarball/" + hash],
   type = "tar.gz",
   strip_prefix = "nicmcd-libprim-" + hash,
+)
+
+hash = "46865ff"
+http_archive(
+  name = "libfactory",
+  urls = ["https://github.com/nicmcd/libfactory/tarball/" + hash],
+  type = "tar.gz",
+  strip_prefix = "nicmcd-libfactory-" + hash,
 )
 
 hash = "cc7075f"
@@ -57,7 +75,31 @@ http_archive(
   strip_prefix = "nicmcd-librnd-" + hash,
 )
 
-hash = "2b5419b"
+hash = "528a0a3"
+http_archive(
+  name = "libfio",
+  urls = ["https://github.com/nicmcd/libfio/tarball/" + hash],
+  type = "tar.gz",
+  strip_prefix = "nicmcd-libfio-" + hash,
+)
+
+hash = "ad29c47"
+http_archive(
+  name = "libstrop",
+  urls = ["https://github.com/nicmcd/libstrop/tarball/" + hash],
+  type = "tar.gz",
+  strip_prefix = "nicmcd-libstrop-" + hash,
+)
+
+hash = "5027e1c"
+http_archive(
+  name = "libsettings",
+  urls = ["https://github.com/nicmcd/libsettings/tarball/" + hash],
+  type = "tar.gz",
+  strip_prefix = "nicmcd-libsettings-" + hash,
+)
+
+hash = "42b125f"
 http_archive(
   name = "libdes",
   urls = ["https://github.com/nicmcd/libdes/tarball/" + hash],

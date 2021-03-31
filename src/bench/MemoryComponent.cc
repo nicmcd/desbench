@@ -28,33 +28,55 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_SIMPLECOMPONENT_H_
-#define EXAMPLE_SIMPLECOMPONENT_H_
+#include "bench/MemoryComponent.h"
 
-#include <des/des.h>
-#include <prim/prim.h>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 
-#include <string>
+#include "factory/ObjectFactory.h"
 
-#include "example/BenchComponent.h"
+MemoryComponent::MemoryComponent(des::Simulator* _simulator,
+                                 const std::string& _name, u64 _id,
+                                 nlohmann::json _settings)
+    : BenchComponent(_simulator, _name, _id, _settings) {
+  // Creates and initializes the memory.
+  bytes_ = _settings["bytes"].get<u64>();
+  mem_ = new u8[bytes_];
+  for (u64 byte = 0; byte < bytes_; byte += 4096) {
+    mem_[byte] = (u8)(simulator->random()->nextU64() % U8_MAX);
+  }
+  mem_[bytes_ - 1] = (u8)(simulator->random()->nextU64() % U8_MAX);
+  sum_ = 0;
 
-namespace example {
+  // Enqueues the first event.
+  simulator->addEvent(new des::Event(
+      this, std::bind(&MemoryComponent::handler, this), des::Time(0), true));
+}
 
-class SimpleComponent : public BenchComponent {
- public:
-  SimpleComponent(des::Simulator* _simulator, const std::string& _name,
-                  u64 _id, bool _shiftyEpsilon, bool _verbose);
-  ~SimpleComponent();
+MemoryComponent::~MemoryComponent() {
+  delete[] mem_;
+}
 
- private:
-  void handler(s32 _a, f64 _b, u16 _c);
-  void nextEvent();
+void MemoryComponent::handler() {
+  count_++;
+  dlogf("hello world, from component #%lu, count %lu", id_, count_);
 
-  f64 sum_;
-  std::function<void(s32, f64, u16)> func_;
-  des::Event evt_;
-};
+  sum_ += mem_[simulator->random()->nextU64() % bytes_];
 
-}  // namespace example
+  if (run_) {
+    nextEvent();
+  }
+}
 
-#endif  // EXAMPLE_SIMPLECOMPONENT_H_
+void MemoryComponent::nextEvent() {
+  MemoryComponent* component =
+      reinterpret_cast<MemoryComponent*>(nextComponent());
+  des::Time time = nextTime();
+  des::Event* event = new des::Event(
+      component, std::bind(&MemoryComponent::handler, this), time, true);
+  simulator->addEvent(event);
+}
+
+registerWithObjectFactory("memory", BenchComponent, MemoryComponent,
+                          BENCH_ARGS);

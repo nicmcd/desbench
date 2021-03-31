@@ -28,41 +28,44 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/EmptyComponent.h"
+#ifndef BENCH_BENCHCOMPONENT_H_
+#define BENCH_BENCHCOMPONENT_H_
 
-#include <cassert>
-#include <cstdio>
-#include <cstring>
+#include <string>
+#include <vector>
 
-namespace example {
+#include "des/des.h"
+#include "nlohmann/json.hpp"
+#include "prim/prim.h"
+#include "rnd/Random.h"
 
-EmptyComponent::EmptyComponent(
-    des::Simulator* _simulator, const std::string& _name,
-    u64 _id, bool _shiftyEpsilon, bool _verbose)
-    : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
-      evt_(this, std::bind(&EmptyComponent::handler, this)) {
-  handler();  // queue first event
-}
+#define BENCH_ARGS des::Simulator*, const std::string&, u64, nlohmann::json
 
-void EmptyComponent::handler() {
-  count_++;
-  if (verbose_ || count_ < 5) {
-    dlogf("hello world, from component #%lu, count %lu", id_, count_);
-  }
+class BenchComponent : public des::ActiveComponent {
+ public:
+  BenchComponent(des::Simulator* _simulator, const std::string& _name, u64 _id,
+                 nlohmann::json _settings);
+  virtual ~BenchComponent() = default;
 
-  if (run_) {
-    nextEvent();
-  }
-}
+  static BenchComponent* create(BENCH_ARGS);
 
-void EmptyComponent::nextEvent() {
-  evt_.time = simulator->time() + 1;
-  if (shiftyEpsilon_) {
-    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
-  } else {
-    evt_.time.setEpsilon(0);
-  }
-  simulator->addEvent(&evt_);
-}
+  void stop();
+  void setAllComponents(std::vector<BenchComponent*>* _all_components);
 
-}  // namespace example
+ protected:
+  des::Time nextTime();
+  BenchComponent* nextComponent();
+
+  const u64 id_;
+  const u64 look_ahead_;
+  const bool stagger_tick_;
+  const bool stagger_epsilon_;
+  const f64 remote_probability_;
+
+  u64 count_;
+  bool run_;
+  u64 num_components_;
+  std::vector<BenchComponent*>* all_components_;
+};
+
+#endif  // BENCH_BENCHCOMPONENT_H_

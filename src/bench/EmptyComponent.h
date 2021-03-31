@@ -28,59 +28,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/MemoryComponent.h"
+#ifndef BENCH_EMPTYCOMPONENT_H_
+#define BENCH_EMPTYCOMPONENT_H_
 
-#include <cassert>
-#include <cstdio>
-#include <cstring>
+#include <string>
 
-namespace example {
+#include "bench/BenchComponent.h"
+#include "des/des.h"
+#include "nlohmann/json.hpp"
+#include "prim/prim.h"
 
-MemoryComponent::MemoryComponent(
-    des::Simulator* _simulator, const std::string& _name,
-    u64 _id, bool _shiftyEpsilon, u64 _bytes, bool _verbose)
-    : BenchComponent(_simulator, _name, _id, _shiftyEpsilon, _verbose),
-      bytes_(_bytes),
-      evt_(this, std::bind(&MemoryComponent::handler, this)) {
-  // give the random generator a seed
-  rnd_.seed(id_);
+class EmptyComponent : public BenchComponent {
+ public:
+  EmptyComponent(des::Simulator* _simulator, const std::string& _name, u64 _id,
+                 nlohmann::json _settings);
+  ~EmptyComponent() override = default;
 
-  // create and initialize memory
-  mem_ = new u8[bytes_];
-  for (u64 byte = 0; byte < bytes_; byte += 4096) {
-    mem_[byte] = (u8)(rnd_() % 256);
-  }
-  mem_[bytes_ - 1] = (u8)(rnd_() % 256);
+ private:
+  void handler();
+  void nextEvent();
+};
 
-  // queue first event
-  nextEvent();
-}
-
-MemoryComponent::~MemoryComponent() {
-  delete[] mem_;
-}
-
-void MemoryComponent::handler() {
-  count_++;
-  if (verbose_ || count_ < 5) {
-    dlogf("hello world, from component #%lu, count %lu", id_, count_);
-  }
-
-  sum_ += mem_[rnd_() % bytes_];
-
-  if (run_) {
-    nextEvent();  // queue another event
-  }
-}
-
-void MemoryComponent::nextEvent() {
-  evt_.time = simulator->time() + 1;
-  if (shiftyEpsilon_) {
-    evt_.time.setEpsilon((id_ + count_) % des::EPSILON_INV);
-  } else {
-    evt_.time.setEpsilon(0);
-  }
-  simulator->addEvent(&evt_);
-}
-
-}  // namespace example
+#endif  // BENCH_EMPTYCOMPONENT_H_

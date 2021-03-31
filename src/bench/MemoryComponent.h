@@ -28,33 +28,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_SHACOMPONENT_H_
-#define EXAMPLE_SHACOMPONENT_H_
-
-#include <des/des.h>
-#include <prim/prim.h>
+#ifndef BENCH_MEMORYCOMPONENT_H_
+#define BENCH_MEMORYCOMPONENT_H_
 
 #include <string>
 
-#include "example/BenchComponent.h"
+#include "bench/BenchComponent.h"
+#include "des/des.h"
+#include "nlohmann/json.hpp"
+#include "prim/prim.h"
 
-namespace example {
-
-class ShaComponent : public BenchComponent {
+class MemoryComponent : public BenchComponent {
  public:
-  ShaComponent(des::Simulator* _simulator, const std::string& _name,
-               u64 _id, bool _shiftyEpsilon, u64 _shaBits, bool _verbose);
-  ~ShaComponent();
+  MemoryComponent(des::Simulator* _simulator, const std::string& _name, u64 _id,
+                  nlohmann::json _settings);
+  ~MemoryComponent() override;
 
  private:
   void handler();
   void nextEvent();
 
-  unsigned char* hash_;
-  const u64 shaBits_;
-  des::Event evt_;
+  u64 bytes_;
+  u8* mem_;
+  u64 sum_;
 };
 
-}  // namespace example
-
-#endif  // EXAMPLE_SHACOMPONENT_H_
+#endif  // BENCH_MEMORYCOMPONENT_H_

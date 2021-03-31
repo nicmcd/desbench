@@ -28,31 +28,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef EXAMPLE_EMPTYCOMPONENT_H_
-#define EXAMPLE_EMPTYCOMPONENT_H_
+#include "bench/SimpleComponent.h"
 
-#include <des/des.h>
-#include <prim/prim.h>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 
-#include <string>
+#include "factory/ObjectFactory.h"
 
-#include "example/BenchComponent.h"
+SimpleComponent::SimpleComponent(des::Simulator* _simulator,
+                                 const std::string& _name, u64 _id,
+                                 nlohmann::json _settings)
+    : BenchComponent(_simulator, _name, _id, _settings) {
+  simulator->addEvent(new des::Event(
+      this, std::bind(&SimpleComponent::handler, this, -_id, _id, _id),
+      des::Time(0), true));
+}
 
-namespace example {
+void SimpleComponent::handler(s32 _a, f64 _b, char _c) {
+  count_++;
+  dlogf("hello world, from component #%lu, count %lu", id_, count_);
 
-class EmptyComponent : public BenchComponent {
- public:
-  EmptyComponent(des::Simulator* _simulator, const std::string& _name,
-                 u64 _id, bool _shiftyEpsilon, bool _verbose);
-  ~EmptyComponent() = default;
+  if (run_) {
+    nextEvent(_a + 1, _b + 1, _c + 1);
+  }
+}
 
- private:
-  void handler();
-  void nextEvent();
+void SimpleComponent::nextEvent(s32 _a, f64 _b, char _c) {
+  SimpleComponent* component =
+      reinterpret_cast<SimpleComponent*>(nextComponent());
+  des::Time time = nextTime();
+  des::Event* event = new des::Event(
+      component, std::bind(&SimpleComponent::handler, this, _a, _b, _c), time,
+      true);
+  simulator->addEvent(event);
+}
 
-  des::Event evt_;
-};
-
-}  // namespace example
-
-#endif  // EXAMPLE_EMPTYCOMPONENT_H_
+registerWithObjectFactory("simple", BenchComponent, SimpleComponent,
+                          BENCH_ARGS);

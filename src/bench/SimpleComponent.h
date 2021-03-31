@@ -28,31 +28,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example/BenchComponent.h"
+#ifndef BENCH_SIMPLECOMPONENT_H_
+#define BENCH_SIMPLECOMPONENT_H_
 
-#include <cassert>
-#include <cstdio>
-#include <cstring>
+#include <string>
 
-namespace example {
+#include "bench/BenchComponent.h"
+#include "des/des.h"
+#include "nlohmann/json.hpp"
+#include "prim/prim.h"
 
-BenchComponent::BenchComponent(
-    des::Simulator* _simulator, const std::string& _name, u64 _id,
-    bool _shiftyEpsilon, bool _verbose)
-    : des::ActiveComponent(_simulator, _name), id_(_id), count_(0),
-      run_(true), shiftyEpsilon_(_shiftyEpsilon), verbose_(_verbose),
-      numComponents_(0), allComponents_(nullptr) {}
+class SimpleComponent : public BenchComponent {
+ public:
+  SimpleComponent(des::Simulator* _simulator, const std::string& _name, u64 _id,
+                  nlohmann::json _settings);
+  ~SimpleComponent() override = default;
 
-BenchComponent::~BenchComponent() {}
+ private:
+  void handler(s32 _a, f64 _b, char _c);
+  void nextEvent(s32 _a, f64 _b, char _c);
+};
 
-void BenchComponent::kill() {
-  run_ = false;
-}
-
-void BenchComponent::setAllComponents(
-    std::vector<BenchComponent*>* _allComponents) {
-  numComponents_ = _allComponents->size();
-  allComponents_ = _allComponents;
-}
-
-}  // namespace example
+#endif  // BENCH_SIMPLECOMPONENT_H_
