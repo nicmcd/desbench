@@ -42,12 +42,15 @@ MemoryComponent::MemoryComponent(des::Simulator* _simulator,
     : BenchComponent(_simulator, _name, _id, _settings) {
   // Creates and initializes the memory.
   bytes_ = _settings["bytes"].get<u64>();
+  assert(bytes_ > 0);
+  size_ = _settings["size"].get<u64>();
+  assert(size_ > 0);
+  assert(size_ <= bytes_);
   mem_ = new u8[bytes_];
   for (u64 byte = 0; byte < bytes_; byte += 4096) {
     mem_[byte] = (u8)(simulator->random()->nextU64() % U8_MAX);
   }
   mem_[bytes_ - 1] = (u8)(simulator->random()->nextU64() % U8_MAX);
-  sum_ = 0;
 
   // Enqueues the first event.
   simulator->addEvent(new des::Event(
@@ -62,7 +65,11 @@ void MemoryComponent::handler() {
   count_++;
   dlogf("hello world, from component #%lu, count %lu", id_, count_);
 
-  sum_ += mem_[simulator->random()->nextU64() % bytes_];
+  // Uses memmove to transfer memory from a random source to a random
+  // destination.
+  u64 src = simulator->random()->nextU64(0, bytes_ - size_);
+  u64 dst = simulator->random()->nextU64(0, bytes_ - size_);
+  memmove(&mem_[dst], &mem_[src], size_);
 
   if (run_) {
     nextEvent();

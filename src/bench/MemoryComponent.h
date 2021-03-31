@@ -48,9 +48,9 @@ class MemoryComponent : public BenchComponent {
   void handler();
   void nextEvent();
 
-  u64 bytes_;
+  u64 bytes_;  // total memory size in this component
+  u64 size_;   // size of each transfer
   u8* mem_;
-  u64 sum_;
 };
 
 #endif  // BENCH_MEMORYCOMPONENT_H_
