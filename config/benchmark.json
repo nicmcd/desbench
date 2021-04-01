@@ -18,7 +18,6 @@
     }
   },
   "benchmark": {
-    "execution_time": 5.0,
     "num_components": 1000,
     "component": {
       "type": "empty",
