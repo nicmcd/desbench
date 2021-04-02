@@ -21,6 +21,11 @@ http_archive(
 )
 
 http_file(
+  name = "clang_format",
+  urls = ["https://raw.githubusercontent.com/nicmcd/pkgbuild/master/clang-format"],
+)
+
+http_file(
     name = "nlohmann_json_build",
     urls = ["https://raw.githubusercontent.com/nicmcd/pkgbuild/master/nlohmannjson.BUILD"],
 )
@@ -34,8 +39,24 @@ http_archive(
 )
 
 http_file(
-  name = "clang_format",
-  urls = ["https://raw.githubusercontent.com/nicmcd/pkgbuild/master/clang-format"],
+    name = "numa_build",
+    urls = ["https://raw.githubusercontent.com/nicmcd/pkgbuild/master/numa.BUILD"],
+)
+
+http_file(
+    name = "numa_patch",
+    urls = ["https://raw.githubusercontent.com/nicmcd/pkgbuild/master/numactl_v2.0.14.patch"],
+)
+
+release = "2.0.14"
+http_archive(
+    name = "numactl",
+    urls = ["https://github.com/numactl/numactl/archive/refs/tags/v" + release + ".tar.gz"],
+    strip_prefix = "numactl-" + release,
+    build_file = "@numa_build//file:downloaded",
+    patches = ["@numa_patch//file:downloaded"],
+    patch_args = ["-p1"],
+    patch_cmds = ["./autogen.sh", "./configure"],
 )
 
 http_file(
@@ -51,7 +72,7 @@ http_archive(
   build_file = "@zlib_build//file:downloaded",
 )
 
-hash = "2b65641"
+hash = "6783002"
 http_archive(
   name = "libprim",
   urls = ["https://github.com/nicmcd/libprim/tarball/" + hash],
@@ -59,7 +80,7 @@ http_archive(
   strip_prefix = "nicmcd-libprim-" + hash,
 )
 
-hash = "46865ff"
+hash = "9e71f43"
 http_archive(
   name = "libfactory",
   urls = ["https://github.com/nicmcd/libfactory/tarball/" + hash],
@@ -67,7 +88,7 @@ http_archive(
   strip_prefix = "nicmcd-libfactory-" + hash,
 )
 
-hash = "cc7075f"
+hash = "4c2ee4d"
 http_archive(
   name = "librnd",
   urls = ["https://github.com/nicmcd/librnd/tarball/" + hash],
@@ -75,7 +96,7 @@ http_archive(
   strip_prefix = "nicmcd-librnd-" + hash,
 )
 
-hash = "528a0a3"
+hash = "670b381"
 http_archive(
   name = "libfio",
   urls = ["https://github.com/nicmcd/libfio/tarball/" + hash],
@@ -83,7 +104,7 @@ http_archive(
   strip_prefix = "nicmcd-libfio-" + hash,
 )
 
-hash = "ad29c47"
+hash = "84ad83a"
 http_archive(
   name = "libstrop",
   urls = ["https://github.com/nicmcd/libstrop/tarball/" + hash],
@@ -91,7 +112,7 @@ http_archive(
   strip_prefix = "nicmcd-libstrop-" + hash,
 )
 
-hash = "5027e1c"
+hash = "063dda8"
 http_archive(
   name = "libsettings",
   urls = ["https://github.com/nicmcd/libsettings/tarball/" + hash],
@@ -99,7 +120,7 @@ http_archive(
   strip_prefix = "nicmcd-libsettings-" + hash,
 )
 
-hash = "66d6b6f"
+hash = "d816dc0"
 http_archive(
   name = "libdes",
   urls = ["https://github.com/nicmcd/libdes/tarball/" + hash],

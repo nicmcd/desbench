@@ -48,7 +48,6 @@ cc_binary(
     name = "desbench",
     srcs = ["src/main.cc"],
     copts = COPTS,
-    linkopts = ["-lnuma"],
     includes = [
         "src",
     ],
