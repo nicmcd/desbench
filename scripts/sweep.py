@@ -19,7 +19,7 @@ def main():
                   help='number of runs')
   ap.add_argument('-e', '--exetime', type=int, default=10,
                   help='execution time per run in seconds')
-  ap.add_argument('-s', '--step', type=int, default=4,
+  ap.add_argument('-s', '--step', type=int, default=1,
                   help='step size for number of cpus (threads)')
   ap.add_argument('-n', '--numactl', default=None,
                   help="arguments for numactl");

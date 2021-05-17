@@ -12,22 +12,7 @@ import re
 import ssplot
 import taskrun
 
-def main():
-  ap = argparse.ArgumentParser()
-  ap.add_argument('exe', help='desbench program')
-  ap.add_argument('odir', help='the output directory')
-  ap.add_argument('-r', '--runs', type=int, default=1,
-                  help='number of runs')
-  ap.add_argument('-e', '--exetime', type=int, default=10,
-                  help='execution time per run in seconds')
-  ap.add_argument('-s', '--step', type=int, default=4,
-                  help='step size for number of cpus (threads)')
-  ap.add_argument('-n', '--numactl', default=None,
-                  help="arguments for numactl");
-  ap.add_argument('-v', '--verbose', action='store_true',
-                  help="show task descriptions");
-  args = ap.parse_args();
-
+def main(args):
   if not os.path.isdir(args.odir):
     os.mkdir(args.odir)
 
@@ -39,11 +24,8 @@ def main():
                            observers=[cob, vob],
                            failure_mode=taskrun.FailureMode.AGGRESSIVE_FAIL)
 
-  cpus_start = 1
-  cpus_stop = os.cpu_count()
-  cpus_step = args.step
-  cpus_list = [x for x in range(cpus_start, cpus_stop + 1)
-               if x % cpus_step == 0]
+  cpus_list = [x for x in range(args.start, args.stop+1, args.step)]
+
   runs = args.runs
 
   # Makes the default settings
@@ -76,7 +58,7 @@ def main():
           'look_ahead': 1,
           'stagger_tick': False,
           'stagger_epsilon': False,
-          'remote_probability': 0.0
+          'remote_probability': 1.0
         }
       },
       'debug': []
@@ -84,8 +66,13 @@ def main():
     json.dump(cfg, fd, indent=2)
 
   # Generates the models
-  layouts = [(1024, 1), (512, 2), (256, 4), (128, 8), (64, 16), (32, 32),
-             (16, 64), (8, 128)]
+  layouts = [(1024, 1)]
+  while True:
+    if layouts[-1][0] <= args.stop:
+      break
+    layouts.append((layouts[-1][0] // 2, layouts[-1][1] * 2),)
+  print(layouts)
+
   models = {}
   for layout in layouts:
     components = layout[0]
@@ -94,8 +81,7 @@ def main():
     models[name] = [
       '/benchmark/num_components=int={}'.format(components),
       '/benchmark/component/initial_events=int={}'.format(
-        initial_events * components),
-      '/benchmark/component/remote_probability=float=0.5']
+        initial_events * components)]
 
   for model in models:
     for cpus in cpus_list:
@@ -176,4 +162,19 @@ def extractRate(filename):
 
 
 if __name__ == '__main__':
-  main()
+  ap = argparse.ArgumentParser()
+  ap.add_argument('exe', help='desbench program')
+  ap.add_argument('odir', help='the output directory')
+  ap.add_argument('start', type=int, help='starting cpus')
+  ap.add_argument('stop', type=int, help='stopping cpus')
+  ap.add_argument('step', type=int, help='cpus step')
+  ap.add_argument('-r', '--runs', type=int, default=1,
+                  help='number of runs')
+  ap.add_argument('-e', '--exetime', type=int, default=10,
+                  help='execution time per run in seconds')
+  ap.add_argument('-n', '--numactl', default=None,
+                  help="arguments for numactl");
+  ap.add_argument('-v', '--verbose', action='store_true',
+                  help="show task descriptions");
+  args = ap.parse_args();
+  main(args)
