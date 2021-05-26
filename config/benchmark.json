@@ -18,14 +18,15 @@
     }
   },
   "benchmark": {
-    "num_components": 1000,
+    "num_components": 1024,
+    "topology": "all-to-all",
     "component": {
       "type": "empty",
-      "initial_events": "$&(/benchmark/num_components)&$",
+      "initial_events": 1,
       "look_ahead": 1,
       "stagger_tick": false,
       "stagger_epsilon": false,
-      "remote_probability": 0.0
+      "remote_probability": 1.0
     }
   },
   "debug": []

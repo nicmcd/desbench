@@ -50,7 +50,8 @@ class BenchComponent : public des::ActiveComponent {
   static BenchComponent* create(BENCH_ARGS);
 
   void stop();
-  void setAllComponents(std::vector<BenchComponent*>* _all_components);
+  void setDestinationComponents(
+      const std::vector<BenchComponent*>& _dest_components);
 
  protected:
   u64 initialEvents();
@@ -66,8 +67,8 @@ class BenchComponent : public des::ActiveComponent {
 
   u64 count_;
   bool run_;
-  u64 num_components_;
-  std::vector<BenchComponent*>* all_components_;
+  u64 num_dests_;
+  std::vector<BenchComponent*> dest_components_;
 };
 
 #endif  // BENCH_BENCHCOMPONENT_H_

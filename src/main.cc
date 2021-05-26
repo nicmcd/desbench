@@ -118,8 +118,26 @@ s32 main(s32 _argc, char** _argv) {
     components.at(id) = BenchComponent::create(
         sim, name, id, settings["benchmark"]["component"]);
   }
-  for (u32 id = 0; id < num_components; id++) {
-    components.at(id)->setAllComponents(&components);
+
+  // Sets the component topology.
+  const std::string topology =
+      settings["benchmark"]["topology"].get<std::string>();
+  if (topology == "all-to-all") {
+    // All components know about all other components.
+    for (u32 id = 0; id < num_components; id++) {
+      components.at(id)->setDestinationComponents(components);
+    }
+  } else if (topology == "ring") {
+    // Each component knows about the component to its right (+1).
+    assert(num_components >= 2);
+    for (u32 src = 0; src < num_components; src++) {
+      u32 dst = (src + 1) % num_components;
+      components.at(src)->setDestinationComponents({
+          components.at(dst)});
+    }
+  } else {
+    fprintf(stderr, "Unknown topology name: %s\n", topology.c_str());
+    assert(false);
   }
 
   // Checks that all components to be debugged were found.

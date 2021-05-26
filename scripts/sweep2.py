@@ -52,6 +52,7 @@ def main(args):
       },
       'benchmark': {
         'num_components': 'TBD',
+        'topology': 'TBD',
         'component': {
           'type': 'empty',
           'initial_events': 'TBD',
@@ -68,7 +69,7 @@ def main(args):
   # Generates the models
   layouts = [(1024, 1)]
   while True:
-    if layouts[-1][0] <= args.stop:
+    if layouts[-1][0] <= os.cpu_count():
       break
     layouts.append((layouts[-1][0] // 2, layouts[-1][1] * 2),)
   print(layouts)
@@ -80,8 +81,7 @@ def main(args):
     name = '{}x{}'.format(components, initial_events)
     models[name] = [
       '/benchmark/num_components=int={}'.format(components),
-      '/benchmark/component/initial_events=int={}'.format(
-        initial_events * components)]
+      '/benchmark/component/initial_events=int={}'.format(initial_events)]
 
   for model in models:
     for cpus in cpus_list:
@@ -95,6 +95,7 @@ def main(args):
         cmd += cfg_file + ' '
         cmd += '/simulator/execution_time=float={} '.format(args.exetime)
         cmd += '/simulator/core/executers=uint={} '.format(cpus)
+        cmd += '/benchmark/topology=string={} '.format(args.topo)
         for mod in models[model]:
           cmd += mod + ' '
         task = taskrun.ProcessTask(tm, name, cmd)
@@ -164,6 +165,7 @@ def extractRate(filename):
 if __name__ == '__main__':
   ap = argparse.ArgumentParser()
   ap.add_argument('exe', help='desbench program')
+  ap.add_argument('topo', help='component topology')
   ap.add_argument('odir', help='the output directory')
   ap.add_argument('start', type=int, help='starting cpus')
   ap.add_argument('stop', type=int, help='stopping cpus')

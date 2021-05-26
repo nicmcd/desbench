@@ -48,8 +48,7 @@ BenchComponent::BenchComponent(des::Simulator* _simulator,
       remote_probability_(_settings["remote_probability"].get<f64>()),
       count_(0),
       run_(true),
-      num_components_(0),
-      all_components_(nullptr) {
+      num_dests_(0) {
   assert(look_ahead_ > 0);
   assert(remote_probability_ >= 0.0 && remote_probability_ <= 1.0);
 }
@@ -72,19 +71,14 @@ void BenchComponent::stop() {
   run_ = false;
 }
 
-void BenchComponent::setAllComponents(
-    std::vector<BenchComponent*>* _all_components) {
-  num_components_ = _all_components->size();
-  all_components_ = _all_components;
+void BenchComponent::setDestinationComponents(
+    const std::vector<BenchComponent*>& _dest_components) {
+  num_dests_ = _dest_components.size();
+  dest_components_ = _dest_components;
 }
 
 u64 BenchComponent::initialEvents() {
-  assert(num_components_ > 0);
-  u64 num_events = initial_events_ / num_components_;
-  if (id_ < (initial_events_ % num_components_)) {
-    num_events++;
-  }
-  return num_events;
+  return initial_events_;
 }
 
 des::Time BenchComponent::nextTime() {
@@ -105,8 +99,8 @@ des::Time BenchComponent::nextTime() {
 
 BenchComponent* BenchComponent::nextComponent() {
   if (simulator->random()->nextF64() <= remote_probability_) {
-    u64 id = simulator->random()->nextU64() % num_components_;
-    return all_components_->at(id);
+    u64 id = simulator->random()->nextU64() % num_dests_;
+    return dest_components_.at(id);
   }
   return this;
 }

@@ -69,9 +69,10 @@ def main():
       },
       'benchmark': {
         'num_components': 1000,
+        'topology': 'all-to-all',
         'component': {
           'type': 'TBD',
-          'initial_events': '$&(/benchmark/num_components)&$',
+          'initial_events': 1,
           'look_ahead': 1,
           'stagger_tick': False,
           'stagger_epsilon': False,
