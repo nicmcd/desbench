@@ -144,7 +144,7 @@ def main(args):
     print(model)
     ys.append(data[model]['rate'])
   mlp = ssplot.MultilinePlot(plt, cpus_list, ys)
-  mlp.set_title('libdes performance')
+  mlp.set_title('libdes Performance ({})'.format(args.topo))
   mlp.set_xlabel('Number of threads')
   mlp.set_xmajor_ticks(len(cpus_list))
   mlp.set_ylabel('Events per second')
