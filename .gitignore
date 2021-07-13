@@ -1,3 +1,4 @@
 bazel-*
 .clang-format
-output/
+cmake-build/
+cmake-local/

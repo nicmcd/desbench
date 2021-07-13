@@ -1,5 +1,4 @@
 # desbench
-
 A benchmark application for libdes
 
 # Build System
