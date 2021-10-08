@@ -72,7 +72,7 @@ http_archive(
   build_file = "@zlib_build//file:downloaded",
 )
 
-hash = "ef2951d"
+hash = "f564c5c"
 http_archive(
   name = "libprim",
   urls = ["https://github.com/nicmcd/libprim/tarball/" + hash],
@@ -88,7 +88,7 @@ http_archive(
   strip_prefix = "nicmcd-libfactory-" + hash,
 )
 
-hash = "868faad"
+hash = "9820e0f"
 http_archive(
   name = "librnd",
   urls = ["https://github.com/nicmcd/librnd/tarball/" + hash],
@@ -96,7 +96,7 @@ http_archive(
   strip_prefix = "nicmcd-librnd-" + hash,
 )
 
-hash = "9709475"
+hash = "6570b57"
 http_archive(
   name = "libfio",
   urls = ["https://github.com/nicmcd/libfio/tarball/" + hash],
@@ -104,7 +104,7 @@ http_archive(
   strip_prefix = "nicmcd-libfio-" + hash,
 )
 
-hash = "bf6c19f"
+hash = "ee4a54f"
 http_archive(
   name = "libstrop",
   urls = ["https://github.com/nicmcd/libstrop/tarball/" + hash],
@@ -112,7 +112,7 @@ http_archive(
   strip_prefix = "nicmcd-libstrop-" + hash,
 )
 
-hash = "e738f08"
+hash = "a77d70b"
 http_archive(
   name = "libsettings",
   urls = ["https://github.com/nicmcd/libsettings/tarball/" + hash],
@@ -120,7 +120,7 @@ http_archive(
   strip_prefix = "nicmcd-libsettings-" + hash,
 )
 
-hash = "71925a6"
+hash = "34d3c07"
 http_archive(
   name = "libdes",
   urls = ["https://github.com/nicmcd/libdes/tarball/" + hash],
