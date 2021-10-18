@@ -112,7 +112,7 @@ http_archive(
   strip_prefix = "nicmcd-libstrop-" + hash,
 )
 
-hash = "a77d70b"
+hash = "264f2b1"
 http_archive(
   name = "libsettings",
   urls = ["https://github.com/nicmcd/libsettings/tarball/" + hash],
@@ -120,7 +120,7 @@ http_archive(
   strip_prefix = "nicmcd-libsettings-" + hash,
 )
 
-hash = "34d3c07"
+hash = "f36c54e"
 http_archive(
   name = "libdes",
   urls = ["https://github.com/nicmcd/libdes/tarball/" + hash],
