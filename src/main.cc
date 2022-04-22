@@ -132,8 +132,7 @@ s32 main(s32 _argc, char** _argv) {
     assert(num_components >= 2);
     for (u32 src = 0; src < num_components; src++) {
       u32 dst = (src + 1) % num_components;
-      components.at(src)->setDestinationComponents({
-          components.at(dst)});
+      components.at(src)->setDestinationComponents({components.at(dst)});
     }
   } else {
     fprintf(stderr, "Unknown topology name: %s\n", topology.c_str());
